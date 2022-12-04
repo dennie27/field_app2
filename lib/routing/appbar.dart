@@ -1,3 +1,4 @@
+import 'package:FieldApp/profile.dart';
 import 'package:flutter/material.dart';
 
 import '../notification.dart';
@@ -28,7 +29,11 @@ class SKAppBar extends StatelessWidget implements PreferredSizeWidget {
         }, icon: Icon(Icons.notifications)),
       ],
       leading:IconButton(onPressed: (){
-
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>Profile(),
+            ));
       }, icon: Icon(Icons.person,)),
 
 
