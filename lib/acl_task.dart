@@ -50,6 +50,10 @@ class CustomerState extends State<Customer> {
         {
           results = _allUsers;
         }
+        break;
+      default: {
+        results = _allUsers;
+      }
     }
 
     // Refresh the UI
@@ -172,6 +176,10 @@ class CustomerState extends State<Customer> {
               value: '70%',
               label: 'Complete rate',
             ),
+            RowData(
+              value: '40%',
+              label: 'Success visit',
+            )
           ],
         ),
         KpiTittle(
@@ -193,6 +201,10 @@ class CustomerState extends State<Customer> {
               value: '35%',
               label: 'Complete rate',
             ),
+            RowData(
+              value: '20%',
+              label: 'Success calls',
+            )
           ],
         ),
         SizedBox(

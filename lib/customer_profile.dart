@@ -25,8 +25,9 @@ class CProfileState extends State<CProfile> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text("Customer Number"),
-              Text("Customer Location"),
+
+              TextButton(onPressed: (){},child: Text("Customer Number")),
+    TextButton(onPressed: (){},child: Text("Customer Location")),
             ],
 
           ),
