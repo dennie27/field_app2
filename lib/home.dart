@@ -63,7 +63,7 @@ class HomePageState extends State<HomePage> {
                   text: 'Task',
                 ),
                 GButton(
-                  icon: Icons.task,
+                  icon: Icons.phone,
                   text: 'Customer',
                 ),
               ],
