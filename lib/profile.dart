@@ -24,8 +24,9 @@ class ProfileState extends State<Profile> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text("Phone Number"),
-              Text("Location"),
+              TextButton(onPressed: (){},child: Text("255762628707")),
+              TextButton(onPressed: (){},child: Text("Location")),
+
             ],
 
           ),
