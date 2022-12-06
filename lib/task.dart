@@ -164,7 +164,6 @@ class TaskList extends StatelessWidget {
         margin: EdgeInsets.only(left: 5,right: 5,bottom: 10,top: 5),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: Colors.white,
             boxShadow: <BoxShadow>[
               BoxShadow(
                   color: Color.fromRGBO(0, 0, 0, 0.57), //shadow for button
