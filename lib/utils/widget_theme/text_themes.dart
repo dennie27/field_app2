@@ -15,11 +15,6 @@ class TTextTheme {
 
   );
   static TextTheme darkTextTheme = TextTheme(
-
-    headline2:GoogleFonts.mulish(
-
-      color: Colors.white70),
-    subtitle2: GoogleFonts.poppins(color: Colors.white60,fontSize: 24),
   );
 
 }

@@ -143,6 +143,12 @@ class CustomerState extends State<Customer> {
       _foundUsers = results;
     });
   }
+  initState() {
+    // at the beginning, all users are shown
+    _foundUsers = _allUsers;
+    super.initState();
+  }
+
 
   Widget build(BuildContext context) {
     return Column(

@@ -2,11 +2,56 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widget_theme/text_themes.dart';
 
+/*ThemeData lightTheme() {
+
+
+  TextTheme _customLightThemesTextTheme(TextTheme base) {
+    return base.copyWith(
+    );
+  }
+
+  final ThemeData lightTheme = ThemeData.light();
+  return lightTheme.copyWith(
+    textTheme: _customLightThemesTextTheme(lightTheme.textTheme),
+    primaryColor: Color(0xfffff799),
+    colorScheme: ColorScheme.fromSwatch(
+      primarySwatch: AppColor.mycolor),
+    indicatorColor: Color(0xFF807A6B),
+    scaffoldBackgroundColor: Color(0xffffffff),
+    primaryIconTheme: lightTheme.primaryIconTheme.copyWith(
+      color: Colors.white,
+      size: 20,
+    ),
+    iconTheme: lightTheme.iconTheme.copyWith(
+      color: Colors.white,
+    ),
+    tabBarTheme: lightTheme.tabBarTheme.copyWith(
+      labelColor: Color(0xfffff266),
+      unselectedLabelColor: Colors.grey,
+    ),
+    buttonTheme: lightTheme.buttonTheme.copyWith(buttonColor: AppColor.mycolor),
+
+  );
+}
+
+
+ThemeData darkTheme() {
+  final ThemeData darkTheme = ThemeData.dark();
+  return darkTheme.copyWith(
+    primaryColor: Colors.black38,
+    indicatorColor: Color(0xFF807A6B),
+    primaryIconTheme: darkTheme.primaryIconTheme.copyWith(
+      color: Colors.green,
+      size: 20,
+    ),
+  );
+}*/
 
 class AppTheme{
   static ThemeData lightTheme = ThemeData(
-   primarySwatch:  AppColor.mycolor,
-    brightness: Brightness.light,
+      colorScheme: ColorScheme.fromSwatch(
+        primarySwatch: AppColor.mycolor,).copyWith(secondary: Colors.red, brightness: Brightness.light),
+
     textTheme:GoogleFonts.robotoSerifTextTheme(),
     appBarTheme: AppBarTheme(),
     floatingActionButtonTheme: FloatingActionButtonThemeData(),
@@ -14,14 +59,18 @@ class AppTheme{
     elevatedButtonTheme: ElevatedButtonThemeData(style:ElevatedButton.styleFrom())
   );
   static ThemeData darkTheme = ThemeData(
-    primarySwatch: AppColor.mycolor,
-    brightness: Brightness.dark,
+      colorScheme: ColorScheme.fromSwatch(
+        primarySwatch: AppColor.mycolor,).copyWith(secondary: Colors.red, brightness: Brightness.light),
+
       textTheme:GoogleFonts.robotoSerifTextTheme(),
-    appBarTheme: AppBarTheme(),
-    floatingActionButtonTheme: FloatingActionButtonThemeData(),
-    elevatedButtonTheme: ElevatedButtonThemeData(style: ElevatedButton.styleFrom())
+      appBarTheme: AppBarTheme(),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(),
+
+      elevatedButtonTheme: ElevatedButtonThemeData(style:ElevatedButton.styleFrom())
   );
+
 }
+
 class AppColor {
   static const MaterialColor mycolor = const MaterialColor(
     0xffffea00,

@@ -14,13 +14,11 @@ class Task extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: DefaultTabController(
         length: 3,
         child: Column(
           children: <Widget>[
             Container(
-              color: Colors.black87,
               constraints: BoxConstraints.expand(height: 40),
               child: TabBar(tabs: [
                 Tab(text: "My Task"),
