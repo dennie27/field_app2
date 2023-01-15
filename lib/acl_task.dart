@@ -1,10 +1,13 @@
 import 'dart:convert';
 import 'dart:core';
 import 'package:FieldApp/customer_profile.dart';
+import 'package:FieldApp/pending_calls.dart';
 import 'package:FieldApp/utils/themes/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:multiselect_formfield/multiselect_formfield.dart';
 import 'package:http/http.dart' as http;
+
+import 'complete_calls.dart';
 
 class Customer extends StatefulWidget {
   const Customer({Key? key}) : super(key: key);
@@ -151,185 +154,162 @@ class CustomerState extends State<Customer> {
 
 
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Card(
-          shadowColor: Colors.amber,
-          color: Colors.black,
-          child: ListTile(
-            title: Center(
-                child: Text("Task Complete Rate 34%",
-                    style: TextStyle(fontSize: 15, color: Colors.yellow))),
-            dense: true,
+    return DefaultTabController(
+      length: 2,
+      child: Column(
+        children: [
+          KpiTittle(
+            kpicolor: AppColor.mycolor,
+            label: 'Calls Summary',
+            txtcolor: Colors.black87,
           ),
-        ),
-        KpiTittle(
-          kpicolor: AppColor.mycolor,
-          label: 'Calls Summary',
-          txtcolor: Colors.black87,
-        ),
-        Row(
-          children: [
-            RowData(
-              value: '70',
-              label: 'Call Made',
-            ),
-            RowData(
-              value: '30',
-              label: 'Calls Pending',
-            ),
-            RowData(
-              value: '70%',
-              label: 'Complete rate',
-            ),
-            RowData(
-              value: '40%',
-              label: 'Success visit',
-            )
-          ],
-        ),
-        KpiTittle(
-          kpicolor: AppColor.mycolor,
-          label: 'Visit Summary',
-          txtcolor: Colors.black87,
-        ),
-        Row(
-          children: [
-            RowData(
-              value: '20',
-              label: 'Call Made',
-            ),
-            RowData(
-              value: '40',
-              label: 'Calls Pending',
-            ),
-            RowData(
-              value: '35%',
-              label: 'Complete rate',
-            ),
-            RowData(
-              value: '20%',
-              label: 'Success calls',
-            )
-          ],
-        ),
-        SizedBox(
-          height: 15,
-        ),
-        Row(
-          children: [
-            Container(
-              alignment: Alignment.center,
-              child: IconButton(
-                onPressed: () => setState(() => isDescending = !isDescending),
-                icon: Icon(
-                  isDescending ? Icons.arrow_upward : Icons.arrow_downward,
-                  size: 20,
-                  color: Colors.yellow,
-                ),
-                splashColor: Colors.lightGreen,
+          Row(
+            children: [
+              RowData(
+                value: '70',
+                label: 'Call Made',
               ),
-            ),
-            PopupMenuButton(
-              onSelected: (reslust) => _statusFilter(reslust),
-              itemBuilder: (context) => [
-                PopupMenuItem(child: Text("All"), value: "All"),
-                PopupMenuItem(child: Text("Complete"), value: "Complete"),
-                PopupMenuItem(child: Text("Pending"), value: "Pending"),
-                PopupMenuItem(child: Text("Over Due"), value: "Over due"),
-              ],
-              icon: Icon(Icons.filter_list_alt, color: Colors.yellow),
-            ),
-            Expanded(
-              child: TextField(
-                onChanged: (value) => _searchFilter(value),
-                decoration: const InputDecoration(
-                    labelText: 'Search', suffixIcon: Icon(Icons.search)),
+              RowData(
+                value: '30',
+                label: 'Calls Pending',
               ),
-            )
-          ],
-        ),
-        const SizedBox(
-          height: 20,
-        ),
-        Expanded(
-          child: _foundUsers.isNotEmpty
-              ? ListView.builder(
-                  itemCount: _foundUsers.length,
-                  itemBuilder: (context, index) {
-                    final user = _foundUsers[index];
-                    final sortedItems = _foundUsers
-                      ..sort((item1, item2) => isDescending
-                          ? item2['name'].compareTo(item1['name'])
-                          : item1['name'].compareTo(item2['name']));
-                    final name = sortedItems[index]['name'];
-                    return InkWell(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CProfile(),
-                            ));
-                      },
-                      key: ValueKey(_foundUsers[index]["id"]),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: Colors.blueGrey.shade800,
-                            radius: 30,
-                            child: Text(_foundUsers[index]["id"].toString()),
-                          ),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          Flexible(
-                            child: Container(
-                              width: 340,
-                              height: 75,
-                              child: Card(
-                                elevation: 5,
-                                child: Padding(
-                                  padding: EdgeInsets.fromLTRB(20.0, 10, 0, 0),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text("Customer Name"),
-                                          Text("Area"),
-                                          Text("Days Disable"),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          IconButton(
-                                              onPressed: () {},
-                                              icon: Icon(Icons.phone)),
-                                          IconButton(
-                                              onPressed: () {},
-                                              icon: Icon(
-                                                  Icons.location_on_outlined))
-                                        ],
-                                      )
-                                    ],
+              RowData(
+                value: '70%',
+                label: 'Complete rate',
+              ),
+              RowData(
+                value: '40%',
+                label: 'Success Calls',
+              )
+            ],
+          ),
+          KpiTittle(
+            kpicolor: AppColor.mycolor,
+            label: 'Visit Summary',
+            txtcolor: Colors.black87,
+          ),
+          Row(
+            children: [
+              RowData(
+                value: '20',
+                label: 'Visit Made',
+              ),
+              RowData(
+                value: '40',
+                label: 'Visit Pending',
+              ),
+              RowData(
+                value: '35%',
+                label: 'Complete rate',
+              ),
+              RowData(
+                value: '20%',
+                label: 'Success Visit',
+              )
+            ],
+          ),
+          SizedBox(
+            height: 15,
+          ),
+          Container(
+            constraints: BoxConstraints.expand(height: 40),
+            child: TabBar(tabs: [
+              Tab(text: "Pending",),
+              Tab(text: "Completed"),
+            ]),
+          ),
+          Expanded(
+            child: Container(
+              margin: EdgeInsets.all(15),
+              child: TabBarView(
+                children: [
+                  PendingCalls(),
+                  CompleteCalls()
+                ],
+              ),
+
+            ),
+          )
+
+         /* Expanded(
+            child: _foundUsers.isNotEmpty
+                ? ListView.builder(
+                    itemCount: _foundUsers.length,
+                    itemBuilder: (context, index) {
+                      final user = _foundUsers[index];
+                      final sortedItems = _foundUsers
+                        ..sort((item1, item2) => isDescending
+                            ? item2['name'].compareTo(item1['name'])
+                            : item1['name'].compareTo(item2['name']));
+                      final name = sortedItems[index]['name'];
+                      return InkWell(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CProfile(),
+                              ));
+                        },
+                        key: ValueKey(_foundUsers[index]["id"]),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: Colors.blueGrey.shade800,
+                              radius: 30,
+                              child: Text(_foundUsers[index]["id"].toString()),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Flexible(
+                              child: Container(
+                                width: 340,
+                                height: 75,
+                                child: Card(
+                                  elevation: 5,
+                                  child: Padding(
+                                    padding: EdgeInsets.fromLTRB(20.0, 10, 0, 0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text("Customer Name"),
+                                            Text("Area"),
+                                            Text("Days Disable"),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            IconButton(
+                                                onPressed: () {},
+                                                icon: Icon(Icons.phone)),
+                                            IconButton(
+                                                onPressed: () {},
+                                                icon: Icon(
+                                                    Icons.location_on_outlined))
+                                          ],
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  })
-              : const Text(
-                  'No results found',
-                  style: TextStyle(fontSize: 15),
-                ),
-        ),
-      ],
+                          ],
+                        ),
+                      );
+                    })
+                : const Text(
+                    'No results found',
+                    style: TextStyle(fontSize: 15),
+                  ),
+          ),*/
+        ],
+      ),
     );
   }
 }

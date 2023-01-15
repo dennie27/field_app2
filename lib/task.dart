@@ -21,7 +21,7 @@ class Task extends StatelessWidget {
             Container(
               constraints: BoxConstraints.expand(height: 40),
               child: TabBar(tabs: [
-                Tab(text: "My Task"),
+                Tab(text: "My Task",),
                 Tab(text: "Team Task"),
                 Tab(text: "Pending/Request"),
               ]),
