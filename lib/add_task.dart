@@ -208,7 +208,7 @@ class AddTaskState extends State<AddTask> {
                         border: OutlineInputBorder(),
                         hintStyle: TextStyle(color: Colors.grey[800]),
                         hintText: "Name",
-                        fillColor: Colors.white),
+                       ),
                     items:dataset.keys.map((e) {
                       return DropdownMenuItem<String?>(
                         value: e,
@@ -226,7 +226,7 @@ class AddTaskState extends State<AddTask> {
                         border: OutlineInputBorder(),
                         hintStyle: TextStyle(color: Colors.grey[800]),
                         hintText: "Name",
-                        fillColor: Colors.white),
+                        ),
                     items:(dataset[selectedTask] ?? []).map((e) {
                       return DropdownMenuItem<String?>(
                         value: e,
@@ -245,7 +245,7 @@ class AddTaskState extends State<AddTask> {
                         border: OutlineInputBorder(),
                         hintStyle: TextStyle(color: Colors.grey[800]),
                         hintText: "Name",
-                        fillColor: Colors.white),
+                        ),
                     items:region.map((String items) {
                       return DropdownMenuItem(value: items,child: Text(items),);
                     }).toList(), onChanged: (v){}),
@@ -257,7 +257,7 @@ class AddTaskState extends State<AddTask> {
                         border: OutlineInputBorder(),
                         hintStyle: TextStyle(color: Colors.grey[800]),
                         hintText: "Name",
-                        fillColor: Colors.white),
+                        ),
                     items:area.map((String items) {
                       return DropdownMenuItem(value: items,child: Text(items),);
                     }).toList(), onChanged: (v){}),
@@ -269,7 +269,7 @@ class AddTaskState extends State<AddTask> {
                         border: OutlineInputBorder(),
                         hintStyle: TextStyle(color: Colors.grey[800]),
                         hintText: "Name",
-                        fillColor: Colors.white),
+                        ),
                     items:role.map((String items) {
                       return DropdownMenuItem(value: items,child: Text(items),);
                     }).toList(), onChanged: (v){}),
@@ -281,7 +281,7 @@ class AddTaskState extends State<AddTask> {
                         border: OutlineInputBorder(),
                         hintStyle: TextStyle(color: Colors.grey[800]),
                         hintText: "User Role",
-                        fillColor: Colors.white),
+                        ),
                     items:users.map((String items) {
                       return DropdownMenuItem(value: items,child: Text(items),);
                     }).toList(), onChanged: (v){}),
@@ -354,12 +354,12 @@ class AddTaskState extends State<AddTask> {
                       errorText: _validate ? 'Value Can\'t Be Empty' : null,
                       labelText: 'Describe the task',
                     )),
-                Container(
-                  padding: EdgeInsets.all(8),
-                  child: ElevatedButton(
-                    child: const Text('Save'),
-                    onPressed: formPost,
-                  ),
+                ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size.fromHeight(40), // fromHeight use double.infinity as width and 40 is the height
+                    ),
+                  child: const Text('Submit'),
+                  onPressed: formPost,
                 ),
               ],
             ),

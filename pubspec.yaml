@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
 
-version: 3.0.0+3
+version: 4.2.0+5
 
 
 environment:
@@ -39,6 +39,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   google_fonts: ^3.0.1
+  firebase_core: ^2.4.1
   flutter_native_splash: ^2.2.10+1
   google_nav_bar: ^5.0.6
   url_launcher: ^6.1.6
@@ -52,6 +53,9 @@ dependencies:
   shared_preferences: ^2.0.15
   http: ^0.13.5
   firebase_auth: ^4.1.3
+  google_sign_in: ^5.4.3
+  font_awesome_flutter: ^10.3.0
+  provider: ^6.0.5
 
 
 flutter_native_splash:
@@ -88,6 +92,7 @@ flutter:
     - assets/logo/logo.png
     - assets/logo/sk.png
     - assets/images/dennis.jpeg
+    - assets/logo/google.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

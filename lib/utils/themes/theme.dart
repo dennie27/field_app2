@@ -55,15 +55,26 @@ class AppTheme{
     textTheme:GoogleFonts.robotoSerifTextTheme(),
     appBarTheme: AppBarTheme(),
     floatingActionButtonTheme: FloatingActionButtonThemeData(),
+      indicatorColor: AppColor.mycolor,
+    tabBarTheme: TabBarTheme(
+      labelColor: Colors.black,
+      labelStyle: TextStyle(color: Colors.black),
+
+    ),
 
     elevatedButtonTheme: ElevatedButtonThemeData(style:ElevatedButton.styleFrom())
   );
   static ThemeData darkTheme = ThemeData(
       colorScheme: ColorScheme.fromSwatch(
-        primarySwatch: AppColor.mycolor,).copyWith(secondary: Colors.red, brightness: Brightness.light),
+        primarySwatch: AppColor.mycolor,).copyWith(secondary: Colors.red, brightness: Brightness.dark),
 
-      textTheme:GoogleFonts.robotoSerifTextTheme(),
+      textTheme: TextTheme(
+      ).apply(
+        bodyColor: Colors.yellow,
+        displayColor:  Colors.yellow,
+      ),
       appBarTheme: AppBarTheme(),
+      indicatorColor: AppColor.mycolor,
       floatingActionButtonTheme: FloatingActionButtonThemeData(),
 
       elevatedButtonTheme: ElevatedButtonThemeData(style:ElevatedButton.styleFrom())

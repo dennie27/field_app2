@@ -1,82 +1,48 @@
+import 'package:FieldApp/services/auth_services.dart';
 import 'package:FieldApp/utils/themes/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 import 'home.dart';
 
-class Login extends StatefulWidget {
-  @override
-  _LoginState createState() => _LoginState();
-}
-class _LoginState extends State<Login> {
-  @override
+class Login extends StatelessWidget {
   Widget build(BuildContext context) {
-    return Scaffold(
-
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(top: 60.0),
-              child: Center(
-                child: Container(
-                    width: 200,
-                    height: 150,
-                    /*decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(50.0)),*/
-                    child: Image.asset('assets/logo/sk.png')),
+    return Padding(
+      padding: EdgeInsets.all(32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          FlutterLogo(size: 120,),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text("Hey There,\nWelcome back",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),),
+          ),
+          SizedBox(height: 8,),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text("Login to your account to continue",
+              style:TextStyle(
+                fontSize: 16
+              ) ,),
+          ),
+          ElevatedButton.icon(
+            icon: FaIcon(FontAwesomeIcons.google,color: Colors.red,),
+              style: ElevatedButton.styleFrom(
+               minimumSize: Size(double.infinity, 50)
               ),
-            ),
-            Padding(
-              //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
-              padding: EdgeInsets.symmetric(horizontal: 15),
-              child: TextField(
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Email',
-                    hintText: 'Enter valid email id as abc@sunking.com'),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                  left: 15.0, right: 15.0, top: 15, bottom: 0),
-              //padding: EdgeInsets.symmetric(horizontal: 15),
-              child: TextField(
-
-                obscureText: true,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Password',
-                    hintText: 'Enter secure password'),
-              ),
-            ),
-            ElevatedButton(
               onPressed: (){
+              final provider  = Provider.of<GoogleAuth>(context,listen:false);
+              provider.googleLogin();
               },
-              child: Text(
-                'Forgot Password',
-                style: TextStyle(color: Colors.black87, fontSize: 15),
-              ),
-            ),
-            Container(
-              height: 50,
-              width: 250,
-              decoration: BoxDecoration(
-                  color: Colors.blue, borderRadius: BorderRadius.circular(20)),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                      context, MaterialPageRoute(builder: (_) =>HomePage()));
-                },
-                child: Text(
-                  'Login',
-                  style: TextStyle(color: Colors.black, fontSize: 25),
-                ),
-              ),
-            ),
+              label: Text("Sign in with Sun King Email"))
 
-          ],
-        ),
+        ],
       ),
+
     );
   }
 }

@@ -21,7 +21,7 @@ class Task extends StatelessWidget {
             Container(
               constraints: BoxConstraints.expand(height: 40),
               child: TabBar(tabs: [
-                Tab(text: "My Task"),
+                Tab(text: "My Task",),
                 Tab(text: "Team Task"),
                 Tab(text: "Pending/Request"),
               ]),
@@ -164,11 +164,7 @@ class TaskList extends StatelessWidget {
         margin: EdgeInsets.only(left: 5,right: 5,bottom: 10,top: 5),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                  color: Color.fromRGBO(0, 0, 0, 0.57), //shadow for button
-                  blurRadius: 5) //blur radius of shadow
-            ]
+            border: Border.all(color: AppColor.mycolor)
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -185,16 +181,8 @@ class TaskList extends StatelessWidget {
 
               ],
             ),
-            SizedBox(height:5),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
 
 
-
-
-              ],
-            ),
           ],
         ),
       ),
