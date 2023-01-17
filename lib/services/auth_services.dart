@@ -4,6 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
+
+import '../dashboard.dart';
+import '../login.dart';
 class GoogleAuth extends ChangeNotifier{
   final googleSignIn = GoogleSignIn();
   GoogleSignInAccount? _guser;
@@ -24,6 +27,20 @@ class GoogleAuth extends ChangeNotifier{
 
 }
 class AuthService{
+  AuthState(){
+    return StreamBuilder(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (BuildContext context, snapshot){
+          if(snapshot.hasData){
+            return Home();
+          }else{
+            return Login();
+
+          }
+        },
+    );
+
+}
   signInWithGoogle() async {
     final GoogleSignInAccount? guser = await GoogleSignIn().signIn();
 
@@ -36,5 +53,9 @@ class AuthService{
 
 
     return await FirebaseAuth.instance.signInWithCredential(credential);
+  }
+
+  SignOut() {
+    FirebaseAuth.instance.signOut();
   }
 }

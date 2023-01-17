@@ -2,6 +2,7 @@ import 'package:FieldApp/services/auth_services.dart';
 import 'package:FieldApp/utils/themes/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 import 'home.dart';
 
 class Login extends StatelessWidget {
@@ -33,7 +34,11 @@ class Login extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                minimumSize: Size(double.infinity, 50)
               ),
-              onPressed: AuthService().signInWithGoogle(), label: Text("Sign in with Sun King Email"))
+              onPressed: (){
+              final provider  = Provider.of<GoogleAuth>(context,listen:false);
+              provider.googleLogin();
+              },
+              label: Text("Sign in with Sun King Email"))
 
         ],
       ),
