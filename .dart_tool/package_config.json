@@ -131,7 +131,7 @@
       "name": "flutter",
       "rootUri": "file:///C:/flutter/packages/flutter",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "2.19"
     },
     {
       "name": "flutter_form_builder",
@@ -147,7 +147,7 @@
     },
     {
       "name": "flutter_native_splash",
-      "rootUri": "file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_native_splash-2.2.16",
+      "rootUri": "file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_native_splash-2.2.17",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
@@ -161,13 +161,13 @@
       "name": "flutter_test",
       "rootUri": "file:///C:/flutter/packages/flutter_test",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "2.19"
     },
     {
       "name": "flutter_web_plugins",
       "rootUri": "file:///C:/flutter/packages/flutter_web_plugins",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "2.19"
     },
     {
       "name": "font_awesome_flutter",
@@ -243,7 +243,7 @@
     },
     {
       "name": "image",
-      "rootUri": "file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/image-3.3.0",
+      "rootUri": "file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/image-4.0.10",
       "packageUri": "lib/",
       "languageVersion": "2.15"
     },
@@ -255,9 +255,9 @@
     },
     {
       "name": "js",
-      "rootUri": "file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/js-0.6.5",
+      "rootUri": "file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/js-0.6.6",
       "packageUri": "lib/",
-      "languageVersion": "2.16"
+      "languageVersion": "2.19"
     },
     {
       "name": "lints",
@@ -267,7 +267,7 @@
     },
     {
       "name": "matcher",
-      "rootUri": "file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/matcher-0.12.13",
+      "rootUri": "file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/matcher-0.12.14",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
@@ -297,7 +297,7 @@
     },
     {
       "name": "path",
-      "rootUri": "file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/path-1.8.2",
+      "rootUri": "file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/path-1.8.3",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -501,7 +501,7 @@
     },
     {
       "name": "test_api",
-      "rootUri": "file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/test_api-0.4.16",
+      "rootUri": "file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/test_api-0.4.17",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
@@ -602,7 +602,7 @@
       "languageVersion": "2.18"
     }
   ],
-  "generated": "2023-01-15T07:31:17.969129Z",
+  "generated": "2023-01-17T09:44:17.411509Z",
   "generator": "pub",
-  "generatorVersion": "2.19.0-429.0.dev"
+  "generatorVersion": "3.0.0-122.0.dev"
 }

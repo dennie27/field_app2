@@ -33,7 +33,7 @@ class Login extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                minimumSize: Size(double.infinity, 50)
               ),
-              onPressed: AuthService().signInWithGoogle(), label: Text("Sign in with Sun King Email"))
+              onPressed:()=> AuthService().signInWithGoogle(), label: Text("Sign in with Sun King Email"))
 
         ],
       ),

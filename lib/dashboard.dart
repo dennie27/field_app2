@@ -183,7 +183,7 @@ class RowData extends StatelessWidget {
         child: Card(
           elevation: 8,
           child: Container(
-            height: 50,
+            height: 70,
             width: 50,
             child: Column(
                 children: [

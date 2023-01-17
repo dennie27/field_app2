@@ -1,3 +1,5 @@
+import 'package:FieldApp/add_task.dart';
+import 'package:FieldApp/dashboard.dart';
 import 'package:FieldApp/home.dart';
 import 'package:FieldApp/http_online.dart';
 import 'package:FieldApp/login.dart';
@@ -17,7 +19,7 @@ class MyApp extends StatelessWidget {
       /*darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,*/
       debugShowCheckedModeBanner: false,
-      home: Login(),
+      home: HomePage(),
     );
   }
 }
