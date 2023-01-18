@@ -2,18 +2,43 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:camera/camera.dart';
 
 class SingleTask extends StatefulWidget {
   SingleTask({Key? key, required this.id, required this.title})
       : super(key: key);
   final title;
   final id;
+
   @override
   SingleTaskState createState() => new SingleTaskState();
 
 }
 
 class SingleTaskState extends State<SingleTask> {
+  String? selectedTask;
+  String? actionTask;
+  final List<String> Yes = [
+    "Yes",
+    "No"
+  ];
+  final List<String> No = [
+    "Yes_no",
+    "No_no"
+  ];
+  late Map<String, List<String>> dataset = {
+    'No': No,
+    'Yes': Yes,
+
+
+  };
+  onTaskChanged(String? value) {
+
+    if (value != selectedTask) actionTask = null;
+    setState(() {
+      selectedTask = value;
+    });
+  }
   var _key = GlobalKey();
   List data = [];
   Future<http.Response> fetchData() async {
@@ -43,7 +68,7 @@ class SingleTaskState extends State<SingleTask> {
           final data = json.decode(snapshot.data!.body);
           return Scaffold(
               appBar: AppBar(
-                title: const Text("Add new task"),),
+                title: const Text("Update Task"),),
             body: SingleChildScrollView(
               
               child: Form(
@@ -51,7 +76,36 @@ class SingleTaskState extends State<SingleTask> {
                   margin: EdgeInsets.all(10),
                   child: Column(
                     children: [
-                      Text(data['task_title'])
+
+
+                      DropdownButtonFormField<String?>(
+                        value: selectedTask,
+                        decoration: InputDecoration(
+                          filled: true,
+                          labelText: "Did we find the right customer?",
+                          border: OutlineInputBorder(),
+                          hintStyle: TextStyle(color: Colors.white),
+                          hintText: "Name",
+                        ),
+                        items:dataset.keys.map((e) {
+                          return DropdownMenuItem<String?>(
+                            value: e,
+                            child: Text('$e'),
+                          );
+                        }).toList(),
+                        onChanged: onTaskChanged,
+                      ),
+                      Icon(Icons.camera_alt),
+                      Icon(Icons.location_on),
+
+
+                      ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              minimumSize: Size(double.infinity, 50)
+                          ),
+                          onPressed:(){
+                          }, child: Text("Update"), )
+
                     ],
                   ),
                 ),
