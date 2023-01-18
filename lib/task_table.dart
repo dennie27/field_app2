@@ -1,5 +1,6 @@
 
 import 'dart:convert';
+import 'package:FieldApp/single_task_view.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'dart:core';
@@ -239,20 +240,33 @@ class MyTaskViewState extends State<MyTaskView> {
                         child: Container(
                           width: 350,
                           height: 90,
-                          child: Card(
-                            elevation: 5,
+                          child: InkWell(
+                            onTap: (){
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => SingleTask(
+                                      id:_foundUsers[index]['id'] ,
+                                      title:_foundUsers[index]['name'] ,),
+                                  ));
+                              print(_foundUsers[index]['id'] );
+                              ;
+                            },
+                            child: Card(
+                              elevation: 5,
 
-                            child: Padding(
-                              padding: EdgeInsets.fromLTRB(20.0,10,0,0),
-                              child: Column(
+                              child: Padding(
+                                padding: EdgeInsets.fromLTRB(20.0,10,0,0),
+                                child: Column(
 
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text("Task: ${_foundUsers[index]['name']}"),
-                                  Text("Task :"),
-                                  Text("Priority:${_foundUsers[index]['priority']}"),
-                                  Text("Over due:"),
-                                ],
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text("Task: ${_foundUsers[index]['name']}"),
+                                    Text("Task :"),
+                                    Text("Priority:${_foundUsers[index]['priority']}"),
+                                    Text("Over due:"),
+                                  ],
+                                ),
                               ),
                             ),
                           ),

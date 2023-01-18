@@ -1,25 +1,29 @@
-import 'package:FieldApp/add_task.dart';
-import 'package:FieldApp/dashboard.dart';
-import 'package:FieldApp/home.dart';
-import 'package:FieldApp/http_online.dart';
-import 'package:FieldApp/login.dart';
+
 import 'package:FieldApp/utils/themes/theme.dart';
+import 'package:firebase_core/firebase_core.dart';
+
 import 'package:flutter/material.dart';
+import 'home.dart';
+import 'login.dart';
 
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: AppTheme.lightTheme,
-      /*darkTheme: AppTheme.darkTheme,
+    return  MaterialApp(
+          theme: AppTheme.lightTheme,
+          /*darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,*/
-      debugShowCheckedModeBanner: false,
-      home: HomePage(),
+          debugShowCheckedModeBanner: false,
+          home: HomePage(
+
+          ),
     );
   }
 }

@@ -1,10 +1,7 @@
-import 'package:FieldApp/http_online.dart';
-import 'package:FieldApp/single_task_view.dart';
-import 'package:FieldApp/task_table.dart';
 
+import 'package:FieldApp/task_table.dart';
 import 'pending_task.dart';
 import 'team_task.dart';
-import 'package:FieldApp/task_view.dart';
 import 'package:flutter/material.dart';
 import 'utils/themes/theme.dart';
 import 'add_task.dart';

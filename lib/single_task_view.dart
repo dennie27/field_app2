@@ -10,36 +10,66 @@ class SingleTask extends StatefulWidget {
   final id;
   @override
   SingleTaskState createState() => new SingleTaskState();
+
 }
 
 class SingleTaskState extends State<SingleTask> {
   var _key = GlobalKey();
   List data = [];
-  Future<String> getData() async {
-    const apiUrl = 'https://sun-kingfieldapp.herokuapp.com/api/task/12';
-    final response = await http.get(Uri.parse(apiUrl,),headers:{
-      "Content-Type": "application/json",});
+  Future<http.Response> fetchData() async {
+    const apiUrl = 'https://sun-kingfieldapp.herokuapp.com/api/task/12/';
+    final response = await http.get(Uri.parse(apiUrl));
 
-    this.setState(() {
-      data = json.decode(response.body);
-      print(data);
-    });
-
-
-    return "Success!";
+    if (response.statusCode == 200) {
+      return response;
+    } else {
+      throw Exception('Failed to load data');
+    }
   }
+
 
   @override
   void initState() {
-    this.getData();
-    print(data);
+    this.fetchData();
+    print("response.statusCode");
   }
 
   @override
   Widget build(BuildContext context) {
+    return FutureBuilder<http.Response>(
+      future: fetchData(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          final data = json.decode(snapshot.data!.body);
+          return Scaffold(
+              appBar: AppBar(
+                title: const Text("Add new task"),),
+            body: SingleChildScrollView(
+              
+              child: Form(
+                child: Container(
+                  margin: EdgeInsets.all(10),
+                  child: Column(
+                    children: [
+                      Text(data['task_title'])
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Text("${snapshot.error}");
+        }
+
+        return CircularProgressIndicator();
+      },
+    );
+  }
+  /*Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            title: Text("dennis")
+            title: Text("title")
         ),
         body:  ListView.builder(
           physics: NeverScrollableScrollPhysics(),
@@ -65,7 +95,7 @@ class SingleTaskState extends State<SingleTask> {
           ),
         )
     );
-  }
+  }*/
 }
 
 class PendingRequest extends StatelessWidget {

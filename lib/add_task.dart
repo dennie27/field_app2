@@ -146,7 +146,6 @@ class AddTaskState extends State<AddTask> {
   }
 
   formPost() async {
-    if (_saveForm() ?? true) {
       Map data = {
         'task_title':
             _myActivitiesResult.toString().replaceAll("(^\\[|\\]", ""),
@@ -168,7 +167,8 @@ class AddTaskState extends State<AddTask> {
       http.Response response = await http.post(url, body: body, headers: {
         "Content-Type": "application/json",
       });
-    }
+      print(response.body);
+
 
   }
 
@@ -206,7 +206,7 @@ class AddTaskState extends State<AddTask> {
                         filled: true,
                         labelText: "Task Title",
                         border: OutlineInputBorder(),
-                        hintStyle: TextStyle(color: Colors.grey[800]),
+                        hintStyle: TextStyle(color: Colors.white),
                         hintText: "Name",
                        ),
                     items:dataset.keys.map((e) {
@@ -359,7 +359,7 @@ class AddTaskState extends State<AddTask> {
                       minimumSize: Size.fromHeight(40), // fromHeight use double.infinity as width and 40 is the height
                     ),
                   child: const Text('Submit'),
-                  onPressed: formPost,
+                  onPressed: () =>formPost(),
                 ),
               ],
             ),
