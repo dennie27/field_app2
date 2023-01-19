@@ -1,11 +1,9 @@
 import 'dart:convert';
 
-import 'package:FieldApp/multform.dart';
-import 'package:FieldApp/task_update.dart';
-import 'package:FieldApp/utils/themes/theme.dart';
+import 'package:FieldApp/pilot_update.dart';
+import 'package:FieldApp/portfolio_update.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:camera/camera.dart';
 
 class SingleTask extends StatefulWidget {
   SingleTask({Key? key, required this.id, required this.title})
@@ -83,6 +81,9 @@ class SingleTaskState extends State<SingleTask> {
                     children: [
                       if(widget.title == "Portfolio Quality")
                         PortfolioUpdate(),
+                      if(widget.title == "Pilot Management")
+                        PilotUpdate(),
+
 
 
 
@@ -93,11 +94,11 @@ class SingleTaskState extends State<SingleTask> {
                               minimumSize: Size(double.infinity, 50)
                           ),
                           onPressed:(){
-                            Navigator.push(
+                           /* Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                 builder: (context) =>
-                                FormScreenUpdate()));
+                                FormScreenUpdate()));*/
                           }, child: Text("Update"), )
 
                     ],
@@ -110,7 +111,11 @@ class SingleTaskState extends State<SingleTask> {
           return Text("${snapshot.error}");
         }
 
-        return CircularProgressIndicator();
+        return SizedBox(
+          child: CircularProgressIndicator(),
+          height: 10.0,
+          width: 50.0,
+        );
       },
     );
   }

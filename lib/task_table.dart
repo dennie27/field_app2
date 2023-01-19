@@ -14,6 +14,8 @@ class MyTaskView extends StatefulWidget {
   MyTaskViewState createState() => MyTaskViewState();
 }
 class MyTaskViewState extends State<MyTaskView> {
+
+
   final List<Map<String, dynamic>> _allUsers = [
     {"id": 1, "name": "Collection Score", "request": "New Request","priority":"High"},
     {"id": 2, "name": "Team Management", "request": "pending Approval","priority":"Normal"},
@@ -25,6 +27,7 @@ class MyTaskViewState extends State<MyTaskView> {
     {"id": 8, "name": "Portfolio Quality", "request": "Rejected","priority":"High"},
     {"id": 9, "name": "Team Management","request": "Pending Approval","priority":"High"},
     {"id": 10, "name": "Pilot Management", "request": "Rejected ","priority":"Normal"},
+    {"id": 10, "name": "Collection Drive", "request": "Rejected ","priority":"Normal"},
   ];
   List<Map<String, dynamic>> _foundUsers = [];
   void _searchFilter(String enteredKeyword) {
@@ -49,23 +52,26 @@ class MyTaskViewState extends State<MyTaskView> {
     List<Map<String, dynamic>> results = [];
     switch(_status) {
 
-      case "high": { results = _allUsers.where((user) =>
-          user["priority"].toLowerCase().contains(_status.toLowerCase()))
-          .toList(); }
+      case "high": {results = _allUsers
+          .where((user) =>
+          user["priority"].toLowerCase().contains(_status.toLowerCase())).where((user) =>  user["name"].toLowerCase().contains(widget.title.toLowerCase()))
+          .toList();}
       break;
 
       case "normal": {  results = _allUsers
           .where((user) =>
-          user["priority"].toLowerCase().contains(_status.toLowerCase()))
+          user["priority"].toLowerCase().contains(_status.toLowerCase())).where((user) =>  user["name"].toLowerCase().contains(widget.title.toLowerCase()))
           .toList(); }
       break;
 
-      case "low": {  results = _allUsers
+      case "low": { results = _allUsers
           .where((user) =>
-          user["priority"].toLowerCase().contains(_status.toLowerCase()))
-          .toList(); }
+          user["priority"].toLowerCase().contains(_status.toLowerCase())).where((user) =>  user["name"].toLowerCase().contains(widget.title.toLowerCase()))
+          .toList();}
       break;
-      case "All": {  results = _allUsers; }
+      case "All": { results = _allUsers
+          .where((user) =>  user["name"].toLowerCase().contains(widget.title.toLowerCase()))
+          .toList();; }
     }
 
 
@@ -92,7 +98,8 @@ class MyTaskViewState extends State<MyTaskView> {
   @override
   void initState(){
     this.getData();
-   String _status = 'All';
+   this._statusFilter("All");
+   this._searchFilter(widget.title);
   }
 
 
@@ -104,6 +111,7 @@ class MyTaskViewState extends State<MyTaskView> {
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(
+        title: Text(widget.title),
       ),
       body:Column(
         children: [
@@ -245,7 +253,8 @@ class MyTaskViewState extends State<MyTaskView> {
                             onTap: (){
                               Navigator.push(
                                   context,
-                                  MaterialPageRoute(
+ //Navigation
+                                MaterialPageRoute(
                                     builder: (context) => SingleTask(
                                       id:_foundUsers[index]['id'] ,
                                       title:_foundUsers[index]['name'] ,),
