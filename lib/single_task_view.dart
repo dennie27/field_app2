@@ -1,5 +1,8 @@
 import 'dart:convert';
 
+import 'package:FieldApp/multform.dart';
+import 'package:FieldApp/task_update.dart';
+import 'package:FieldApp/utils/themes/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:camera/camera.dart';
@@ -10,8 +13,10 @@ class SingleTask extends StatefulWidget {
   final title;
   final id;
 
+
   @override
   SingleTaskState createState() => new SingleTaskState();
+
 
 }
 
@@ -68,7 +73,7 @@ class SingleTaskState extends State<SingleTask> {
           final data = json.decode(snapshot.data!.body);
           return Scaffold(
               appBar: AppBar(
-                title: const Text("Update Task"),),
+                title: Text(widget.title),),
             body: SingleChildScrollView(
               
               child: Form(
@@ -76,34 +81,23 @@ class SingleTaskState extends State<SingleTask> {
                   margin: EdgeInsets.all(10),
                   child: Column(
                     children: [
+                      if(widget.title == "Portfolio Quality")
+                        PortfolioUpdate(),
 
 
-                      DropdownButtonFormField<String?>(
-                        value: selectedTask,
-                        decoration: InputDecoration(
-                          filled: true,
-                          labelText: "Did we find the right customer?",
-                          border: OutlineInputBorder(),
-                          hintStyle: TextStyle(color: Colors.white),
-                          hintText: "Name",
-                        ),
-                        items:dataset.keys.map((e) {
-                          return DropdownMenuItem<String?>(
-                            value: e,
-                            child: Text('$e'),
-                          );
-                        }).toList(),
-                        onChanged: onTaskChanged,
-                      ),
-                      Icon(Icons.camera_alt),
-                      Icon(Icons.location_on),
 
 
+                      SizedBox(height: 10,),
                       ElevatedButton(
                           style: ElevatedButton.styleFrom(
                               minimumSize: Size(double.infinity, 50)
                           ),
                           onPressed:(){
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                builder: (context) =>
+                                FormScreenUpdate()));
                           }, child: Text("Update"), )
 
                     ],

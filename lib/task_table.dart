@@ -22,7 +22,7 @@ class MyTaskViewState extends State<MyTaskView> {
     {"id": 5, "name": "Process Management", "request": "New Request","priority":"Low"},
     {"id": 6, "name": "Customer Management", "request": "Pending","priority":"High"},
     {"id": 7, "name": "Process Management", "request": "Rejected","priority":"Normal"},
-    {"id": 8, "name": "Collection Score", "request": "Rejected","priority":"High"},
+    {"id": 8, "name": "Portfolio Quality", "request": "Rejected","priority":"High"},
     {"id": 9, "name": "Team Management","request": "Pending Approval","priority":"High"},
     {"id": 10, "name": "Pilot Management", "request": "Rejected ","priority":"Normal"},
   ];
@@ -92,6 +92,7 @@ class MyTaskViewState extends State<MyTaskView> {
   @override
   void initState(){
     this.getData();
+   String _status = 'All';
   }
 
 
