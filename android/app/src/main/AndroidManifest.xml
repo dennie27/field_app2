@@ -2,6 +2,7 @@
     package="com.example.field_app">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
    <application
         android:label="field_app"
         android:name="${applicationName}"

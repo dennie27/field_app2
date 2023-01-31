@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 
@@ -7,6 +8,7 @@ class Profile  extends StatefulWidget {
   ProfileState createState() => ProfileState();
 }
 class ProfileState extends State<Profile> {
+  var currentUser = FirebaseAuth.instance.currentUser;
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
@@ -19,7 +21,7 @@ class ProfileState extends State<Profile> {
               child: Text("CP"),
             ),
           ),
-          Text("User name"),
+          Text("${currentUser?.displayName}"),
           Text(" Area"),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -41,7 +43,9 @@ class ProfileState extends State<Profile> {
             ),
           ),
           Text("Payments"),
-          Text("data"),
+          ElevatedButton(onPressed: (){
+
+          }, child: Text("user"))
 
 
         ],

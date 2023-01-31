@@ -1,21 +1,26 @@
 import 'package:FieldApp/dash_view.dart';
 import 'package:FieldApp/task_view.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'utils/themes/theme.dart';
+
 
 
 class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    var currentUser = FirebaseAuth.instance.currentUser;
 
+    return SingleChildScrollView(
       child: Container(
 
         padding: const EdgeInsets.all(12.3),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Hi Kilimanjaro",style: TextStyle(fontSize: 10),),
+
+            Text("${currentUser?.displayName}",style: TextStyle(fontSize: 10),),
 //summary
             SizedBox(height: 5,),
             Container(

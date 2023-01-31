@@ -3,7 +3,9 @@ import 'dart:core';
 import 'package:FieldApp/customer_profile.dart';
 import 'package:FieldApp/pending_calls.dart';
 import 'package:FieldApp/utils/themes/theme.dart';
+import 'package:call_log/call_log.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:multiselect_formfield/multiselect_formfield.dart';
 import 'package:http/http.dart' as http;
 
@@ -16,10 +18,8 @@ class Customer extends StatefulWidget {
 }
 
 class CustomerState extends State<Customer> {
+
   bool isDescending = false;
-  final List<Map> myProducts =
-      List.generate(100000, (index) => {"id": index, "name": "Product $index"})
-          .toList();
   void _statusFilter(String _status) {
     List<Map<String, dynamic>> results = [];
     switch (_status) {
@@ -230,84 +230,6 @@ class CustomerState extends State<Customer> {
 
             ),
           )
-
-         /* Expanded(
-            child: _foundUsers.isNotEmpty
-                ? ListView.builder(
-                    itemCount: _foundUsers.length,
-                    itemBuilder: (context, index) {
-                      final user = _foundUsers[index];
-                      final sortedItems = _foundUsers
-                        ..sort((item1, item2) => isDescending
-                            ? item2['name'].compareTo(item1['name'])
-                            : item1['name'].compareTo(item2['name']));
-                      final name = sortedItems[index]['name'];
-                      return InkWell(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => CProfile(),
-                              ));
-                        },
-                        key: ValueKey(_foundUsers[index]["id"]),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              backgroundColor: Colors.blueGrey.shade800,
-                              radius: 30,
-                              child: Text(_foundUsers[index]["id"].toString()),
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Flexible(
-                              child: Container(
-                                width: 340,
-                                height: 75,
-                                child: Card(
-                                  elevation: 5,
-                                  child: Padding(
-                                    padding: EdgeInsets.fromLTRB(20.0, 10, 0, 0),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text("Customer Name"),
-                                            Text("Area"),
-                                            Text("Days Disable"),
-                                          ],
-                                        ),
-                                        Row(
-                                          children: [
-                                            IconButton(
-                                                onPressed: () {},
-                                                icon: Icon(Icons.phone)),
-                                            IconButton(
-                                                onPressed: () {},
-                                                icon: Icon(
-                                                    Icons.location_on_outlined))
-                                          ],
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    })
-                : const Text(
-                    'No results found',
-                    style: TextStyle(fontSize: 15),
-                  ),
-          ),*/
         ],
       ),
     );

@@ -1,7 +1,9 @@
 import 'package:FieldApp/profile.dart';
 import 'package:flutter/material.dart';
 
+import '../login.dart';
 import '../notification.dart';
+import '../services/auth_services.dart';
 
 class SKAppBar extends StatelessWidget implements PreferredSizeWidget {
   final double height;
@@ -27,6 +29,16 @@ class SKAppBar extends StatelessWidget implements PreferredSizeWidget {
                 builder: (context) =>UserNotification(),
               ));
         }, icon: Icon(Icons.notifications)),
+        IconButton(onPressed: (){
+          Authentication.signOut();
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) =>Login(
+
+              ),
+            ),
+          );
+        }, icon: Icon(Icons.logout)),
       ],
       leading:IconButton(onPressed: (){
         Navigator.push(

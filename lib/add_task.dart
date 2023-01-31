@@ -1,17 +1,24 @@
-import 'dart:convert';
+
 import 'dart:core';
+import 'package:FieldApp/pending_task.dart';
+import 'package:FieldApp/routing/bottom_nav.dart';
 import 'package:FieldApp/utils/themes/theme.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:multiselect_formfield/multiselect_formfield.dart';
-import 'package:http/http.dart' as http;
+
 
 class AddTask extends StatefulWidget {
+
   const AddTask({Key? key}) : super(key: key);
   @override
   AddTaskState createState() => AddTaskState();
 }
 
 class AddTaskState extends State<AddTask> {
+  var currentUser = FirebaseAuth.instance.currentUser;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
   String? priority;
   List? _myActivities;
   List? _subtask;
@@ -23,6 +30,7 @@ class AddTaskState extends State<AddTask> {
   late String _areaResult;
   late String _regionResult;
   final _text = TextEditingController();
+  final _taskdetailtext = TextEditingController();
   bool _validate = false;
   final List<String> portfolio = [
     'Visiting unreachable welcome call clients',
@@ -43,21 +51,22 @@ class AddTaskState extends State<AddTask> {
   final List<String> pilot = [
     'Conduct the process audit (Name the process being audited)',
     'Conduct a pilot audit( Name the pilot being audited)',
-    'Testing the GPS accuracy of units submitted.',
+    'Testing the GPS accuracy of units submitted',
     'Reselling of repossessed units',
-    'Repossessing qualified units for Repo and Resale:',
+    'Repossessing qualified units for Repo and Resale',
     'Increase the Kazi Visit Percentage',
     'Other - Please Expound.'
   ];
-  final List<String> collection  = [
-    'Disable Rate greater than 180-365 days - Since driving Recovery Officer',
-    'Disabled 15-180 days (% of accounts moving on a daily basis to this book, % of accounts shifting from this book to more than 180 days disabled, % reduction/growth of this book on a daily basis versus sales)',
-    'Roll-in to 180 days Rate.',
-    'Agent Restriction Rate - Total Restricted Agents/ Total Active Agents',
-    'Kazi Completion Rate &/ Successful Rate',
-    'Collection Score/ Repayment Speed (Regional)'
+  final List<String> collection = [
+    'Field Visits with low-performing Agents in Collection Score',
+    'Repossession of accounts above 180',
+    'Visits Tampering Home 400',
+    'Work with restricted Agents',
+    'Calling of special book',
+    'Sending SMS to clients',
+    'Table Meeting/ Collection Sensitization Training'
   ];
-  final List<String> team   = [
+  final List<String> team = [
     'Assist a team member to improve the completion rate',
     'Raise a reminder to a team member',
     'Raise a warning to a team member',
@@ -68,27 +77,26 @@ class AddTaskState extends State<AddTask> {
 
   String? selectedTask;
   String? selectedSubTask;
+  String? regionselected;
+  String? customerselected;
+  String? areaselected;
+  String? agentselected;
+  String? caseselected;
   late Map<String, List<String>> dataset = {
     'Portfolio Quality': portfolio,
     'Team Management': team,
     'Collection Drive': collection,
     'Pilot/Process Management': pilot,
     'Customer Management': customer,
-
   };
   onTaskChanged(String? value) {
-
     if (value != selectedTask) selectedSubTask = null;
     setState(() {
       selectedTask = value;
     });
   }
-  @override
-  void dispose() {
-    _text.dispose();
-    super.dispose();
-  }
 
+  @override
   late String _myActivitiesResult;
   final formKey = GlobalKey<FormState>();
   var items = [
@@ -126,6 +134,20 @@ class AddTaskState extends State<AddTask> {
     'Hamis',
     'Zainab',
   ];
+  var customerCase = [
+    'Case 1',
+    'Case 2',
+    'Case 3',
+    'Case 4',
+    'Case 5',
+  ];
+  var customerList = [
+    'customer 1',
+    'customer 2',
+    'customer 3',
+    'customer 4',
+    'customer 5',
+  ];
 
   String taskValue = 'Select task';
   String startDate = 'date start';
@@ -146,9 +168,38 @@ class AddTaskState extends State<AddTask> {
   }
 
   formPost() async {
-      Map data = {
-        'task_title':
-            _myActivitiesResult.toString().replaceAll("(^\\[|\\]", ""),
+    print(selectedSubTask);
+    CollectionReference users = firestore.collection("task");
+    var currentUser = FirebaseAuth.instance.currentUser;
+    await users.add({
+      "task_title": selectedTask,
+      "User UID": currentUser?.uid,
+      "sub_task": selectedSubTask,
+      "task_description": _text.text.toString(),
+      "process_audit":_taskdetailtext.text.toString(),
+      "task_start_date": "2023-01-15",
+      "task_end_date": "2023-01-17",
+      "task_status": "Pending",
+      "task_with": agentselected,
+      "task_area": areaselected.toString(),
+      "task_region": regionselected,
+      "submited_by":currentUser?.displayName ,
+      "case_name":caseselected,
+      "Customer": customerselected,
+      "submited_role": null,
+      "task_country": "Tanzania",
+      "priority": priority,
+      "timestamp": DateTime.now(),
+      "is_approved": "pending"
+    }
+
+    );
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => NavPage()),
+    );
+    /* Map data = {
+        'task_title': _myActivitiesResult.toString().replaceAll("(^\\[|\\]", ""),
         'sub_task': _subtaskResult,
         'task_region': _regionResult,
         'task_area': _areaResult,
@@ -167,9 +218,7 @@ class AddTaskState extends State<AddTask> {
       http.Response response = await http.post(url, body: body, headers: {
         "Content-Type": "application/json",
       });
-      print(response.body);
-
-
+      print(response.body);*/
   }
 
   _saveForm() {
@@ -201,96 +250,206 @@ class AddTaskState extends State<AddTask> {
             child: Column(
               children: [
                 DropdownButtonFormField<String?>(
-                    value: selectedTask,
+                  value: selectedTask,
+                  decoration: InputDecoration(
+                    filled: true,
+                    labelText: "Task Title",
+                    border: OutlineInputBorder(),
+                    hintStyle: TextStyle(color: Colors.white),
+                    hintText: "Name",
+                  ),
+                  items: dataset.keys.map((e) {
+                    return DropdownMenuItem<String?>(
+                      value: e,
+                      child: Text('$e'),
+                    );
+                  }).toList(),
+                  onChanged: onTaskChanged,
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                DropdownButtonFormField<String?>(
+                    value: selectedSubTask,
                     decoration: InputDecoration(
-                        filled: true,
-                        labelText: "Task Title",
-                        border: OutlineInputBorder(),
-                        hintStyle: TextStyle(color: Colors.white),
-                        hintText: "Name",
-                       ),
-                    items:dataset.keys.map((e) {
+                      filled: true,
+                      labelText: "Sub Task",
+                      border: OutlineInputBorder(),
+                      hintStyle: TextStyle(color: Colors.grey[800]),
+                      hintText: "Name",
+                    ),
+                    items: (dataset[selectedTask] ?? []).map((e) {
                       return DropdownMenuItem<String?>(
                         value: e,
                         child: Text('$e'),
                       );
                     }).toList(),
-                    onChanged: onTaskChanged,
+                    onChanged: (val) {
+                      setState(() {
+                        selectedSubTask = val!;
+                      });
+                    }),
+                SizedBox(
+                  height: 10,
                 ),
-                SizedBox(height: 10,),
-                DropdownButtonFormField<String?>(
-                    value: selectedSubTask,
-                    decoration: InputDecoration(
+                if (selectedSubTask ==
+                        'Visiting unreachable welcome call clients' ||
+                    selectedSubTask == 'Reselling of repossessed units' ||
+                    selectedSubTask == 'Visit at-risk accounts' ||
+                    selectedSubTask == 'Visits FPD/SPDs' ||
+                    selectedSubTask ==
+                        'Testing the GPS accuracy of units submitted' ||
+                    selectedSubTask ==
+                        'Repossessing qualified units for Repo and Resale' ||
+                    selectedSubTask == 'Repossession of accounts above 180' ||
+                    selectedSubTask == 'Visits Tampering Home 400' ||
+                    selectedSubTask == 'Visiting of issues raised' ||
+                    selectedSubTask ==
+                        'Repossession of customers needing repossession')
+                  DropdownButtonFormField(
+                      value: customerselected,
+                      decoration: InputDecoration(
                         filled: true,
-                        labelText: "Sub Task",
+                        labelText: "Select the customer to visit",
                         border: OutlineInputBorder(),
                         hintStyle: TextStyle(color: Colors.grey[800]),
-                        hintText: "Name",
-                        ),
-                    items:(dataset[selectedTask] ?? []).map((e) {
-                      return DropdownMenuItem<String?>(
-                        value: e,
-                        child: Text('$e'),
-                      );
-                    }).toList(),  onChanged: (val) {
-                  setState(() {
-                    selectedSubTask = val!;
-                  });
-                }),
-                SizedBox(height: 10,),
-                DropdownButtonFormField(
-                    decoration: InputDecoration(
-                        filled: true,
-                        labelText: "Region",
-                        border: OutlineInputBorder(),
-                        hintStyle: TextStyle(color: Colors.grey[800]),
-                        hintText: "Name",
-                        ),
-                    items:region.map((String items) {
-                      return DropdownMenuItem(value: items,child: Text(items),);
-                    }).toList(), onChanged: (v){}),
-                SizedBox(height: 10,),
-                DropdownButtonFormField(
-                    decoration: InputDecoration(
-                        filled: true,
-                        labelText: "Area",
-                        border: OutlineInputBorder(),
-                        hintStyle: TextStyle(color: Colors.grey[800]),
-                        hintText: "Name",
-                        ),
-                    items:area.map((String items) {
-                      return DropdownMenuItem(value: items,child: Text(items),);
-                    }).toList(), onChanged: (v){}),
-                SizedBox(height: 10,),
-                DropdownButtonFormField(
-                    decoration: InputDecoration(
-                        filled: true,
-                        labelText: "USer Role",
-                        border: OutlineInputBorder(),
-                        hintStyle: TextStyle(color: Colors.grey[800]),
-                        hintText: "Name",
-                        ),
-                    items:role.map((String items) {
-                      return DropdownMenuItem(value: items,child: Text(items),);
-                    }).toList(), onChanged: (v){}),
-                SizedBox(height: 10,),
-                DropdownButtonFormField(
-                    decoration: InputDecoration(
+                        hintText: "Castomer name",
+                      ),
+                      items: customerList.map((String items) {
+                        return DropdownMenuItem(
+                          value: items,
+                          child: Text(items),
+                        );
+                      }).toList(),
+                      onChanged: (val) {
+                        setState(() {
+                          customerselected = val!;
+                        });
+                      }),
+                SizedBox(
+                  height: 10,
+                ),
+                if (selectedSubTask == 'Work with the Agents with low welcome calls to improve' ||
+                    selectedSubTask == 'Increase the Kazi Visit Percentage' ||
+                    selectedSubTask ==
+                        'Field Visits with low-performing Agents in Collection Score' ||
+                    selectedSubTask == 'Work with restricted Agents')
+                  DropdownButtonFormField(
+                      value: agentselected,
+                      decoration: InputDecoration(
                         filled: true,
                         labelText: "Who will you work with",
                         border: OutlineInputBorder(),
                         hintStyle: TextStyle(color: Colors.grey[800]),
-                        hintText: "User Role",
+                        hintText: "Agent name",
+                      ),
+                      items: users.map((String items) {
+                        return DropdownMenuItem(
+                          value: items,
+                          child: Text(items),
+                        );
+                      }).toList(),
+                      onChanged: (val) {
+                        setState(() {
+                          agentselected = val!;
+                        });
+                      }),
+                if (selectedSubTask ==
+                        'Change a red zone CSAT area to orange' ||
+                    selectedSubTask == 'Attend to Fraud Cases')
+                  DropdownButtonFormField(
+                      value: caseselected,
+                      decoration: InputDecoration(
+                        filled: true,
+                        labelText: "which case you will attend",
+                        border: OutlineInputBorder(),
+                        hintStyle: TextStyle(color: Colors.grey[800]),
+                        hintText: "case name",
+                      ),
+                      items: customerCase.map((String items) {
+                        return DropdownMenuItem(
+                          value: items,
+                          child: Text(items),
+                        );
+                      }).toList(),
+                      onChanged: (val) {
+                        setState(() {
+                          caseselected = val!;
+                        });
+                      }),
+                if (selectedSubTask == 'Conduct the process audit (Name the process being audited)' ||
+                    selectedSubTask ==
+                        'Conduct a pilot audit( Name the pilot being audited)' ||
+                    selectedSubTask == 'Calling of special book' ||
+                    selectedSubTask == 'Sending SMS to clients' ||
+                    selectedSubTask ==
+                        'Table Meeting/ Collection Sensitization Training' ||
+                    selectedSubTask == 'Other - Please Expound.')
+                  TextFormField(
+                      controller: _taskdetailtext,
+                      maxLines: 5,
+                      decoration: InputDecoration(
+                        focusedBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: AppColor.mycolor, width: 1.0),
                         ),
-                    items:users.map((String items) {
-                      return DropdownMenuItem(value: items,child: Text(items),);
-                    }).toList(), onChanged: (v){}),
-                SizedBox(height: 10,),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: Colors.black12, width: 1.0),
+                        ),
+                      )),
+                SizedBox(
+                  height: 10,
+                ),
+                DropdownButtonFormField(
+                    value: regionselected,
+                    decoration: InputDecoration(
+                      filled: true,
+                      labelText: "Region",
+                      border: OutlineInputBorder(),
+                      hintStyle: TextStyle(color: Colors.grey[800]),
+                      hintText: "Name",
+                    ),
+                    items: region.map((String items) {
+                      return DropdownMenuItem(
+                        value: items,
+                        child: Text(items),
+                      );
+                    }).toList(),
+                    onChanged: (val) {
+                      setState(() {
+                        regionselected = val!;
+                      });
+                    }),
+                SizedBox(
+                  height: 10,
+                ),
+                DropdownButtonFormField(
+                    decoration: InputDecoration(
+                      filled: true,
+                      labelText: "Area",
+                      border: OutlineInputBorder(),
+                      hintStyle: TextStyle(color: Colors.grey[800]),
+                      hintText: "Name",
+                    ),
+                    items: area.map((String items) {
+                      return DropdownMenuItem(
+                        value: items,
+                        child: Text(items),
+                      );
+                    }).toList(),
+                    onChanged: (val) {
+                      setState(() {
+                        areaselected = val!;
+                      });
+                    }),
+                SizedBox(
+                  height: 10,
+                ),
                 Text(
                   "What is the priority for this task?",
                   textAlign: TextAlign.start,
-                  style:
-                  TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 Row(
                   children: [
@@ -338,29 +497,31 @@ class AddTaskState extends State<AddTask> {
                     ),
                   ],
                 ),
-                SizedBox(height: 10,),
+                SizedBox(
+                  height: 10,
+                ),
                 TextFormField(
                     controller: _text,
                     maxLines: 5,
                     decoration: InputDecoration(
                       focusedBorder: OutlineInputBorder(
                         borderSide:
-                        BorderSide(color: AppColor.mycolor, width: 1.0),
+                            BorderSide(color: AppColor.mycolor, width: 1.0),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderSide:
-                        BorderSide(color: Colors.black12, width: 1.0),
+                            BorderSide(color: Colors.black12, width: 1.0),
                       ),
                       errorText: _validate ? 'Value Can\'t Be Empty' : null,
                       labelText: 'Describe the task',
                     )),
                 ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      minimumSize: Size.fromHeight(40), // fromHeight use double.infinity as width and 40 is the height
+                      minimumSize: Size.fromHeight(
+                          40), // fromHeight use double.infinity as width and 40 is the height
                     ),
-                  child: const Text('Submit'),
-                  onPressed: () =>formPost(),
-                ),
+                    child: const Text('Submit'),
+                    onPressed: () => formPost()),
               ],
             ),
           ),

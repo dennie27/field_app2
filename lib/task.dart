@@ -1,5 +1,6 @@
 
 import 'package:FieldApp/task_table.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'pending_task.dart';
 import 'team_task.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,19 @@ import 'package:intl/intl.dart';
 class Task extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var dennis  = FirebaseFirestore.instance.collection('withdrawals').get().then((value) => {
+    });
+    Future<int> getCount() async {
+      int count = await FirebaseFirestore.instance.collection('task').get().then((value) => value.size);
+      return count;
+    }
+    String firestore = FirebaseFirestore.instance.collection('task').snapshots().length.toString();
+
+
+    var process = 0;
+    var pilot = 0;
+    var portfolio = 0;
+    var customer = 0;
     return Scaffold(
       body: DefaultTabController(
         length: 3,
@@ -18,6 +32,7 @@ class Task extends StatelessWidget {
             Container(
               constraints: BoxConstraints.expand(height: 40),
               child: TabBar(tabs: [
+
                 Tab(text: "My Task",),
                 Tab(text: "Team Task"),
                 Tab(text: "Pending/Request"),
@@ -58,17 +73,13 @@ class Task extends StatelessWidget {
                         TaskList(
                           task_title: 'Collection Drive',
                           priority: 'High',
-                          ahq_name: 'Arusha',
-                          date: '32/04/22',
-                          task_complete: '45',
+                          task_complete:"9",
                           task: '5',
 
                         ),
                         TaskList(
                           task_title: 'Process Management',
                           priority: 'High',
-                          ahq_name: 'Arusha',
-                          date: '32/04/22',
                           task_complete: '45',
                           task: '5',
 
@@ -76,8 +87,6 @@ class Task extends StatelessWidget {
                         TaskList(
                           task_title: 'Pilot Management',
                           priority: 'Normal',
-                          ahq_name: 'Morogoro',
-                          date: '32/04/22',
                           task_complete: '45',
                           task: '5',
 
@@ -85,8 +94,6 @@ class Task extends StatelessWidget {
                         TaskList(
                           task_title: 'Portfolio Quality',
                           priority: 'Low',
-                          ahq_name: 'Singida',
-                          date: '32/04/22',
                           task_complete: '45',
                           task: '5',
 
@@ -94,8 +101,6 @@ class Task extends StatelessWidget {
                         TaskList(
                           task_title: 'Customer Management',
                           priority: 'Normal',
-                          ahq_name: 'Moshi',
-                          date: '32/04/22',
                           task_complete: '45',
                           task: '5',
 
@@ -126,15 +131,11 @@ class TaskList extends StatelessWidget {
 
   final String task_title;
   final String priority;
-  final String ahq_name;
-  final String date;
   final String task;
   final String task_complete;
   const TaskList({Key? key,
     required this.task_title,
     required this.priority,
-    required this.ahq_name,
-    required this.date,
     required this.task,
     required this.task_complete,
 

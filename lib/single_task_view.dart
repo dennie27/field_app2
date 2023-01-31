@@ -83,6 +83,9 @@ class SingleTaskState extends State<SingleTask> {
                         PortfolioUpdate(),
                       if(widget.title == "Pilot Management")
                         PilotUpdate(),
+                      if(widget.title == "Collection Drive")
+                        CollectionUpdate(),
+
 
 
 

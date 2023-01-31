@@ -1,5 +1,9 @@
 // main.dart
+import 'package:call_log/call_log.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 
 import 'customer_profile.dart';
 
@@ -10,6 +14,118 @@ class PendingCalls extends StatefulWidget {
   PendingCallsState createState() => PendingCallsState();
 }
 class PendingCallsState extends State<PendingCalls> {
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  var currentUser = FirebaseAuth.instance.currentUser;
+  var fnumberupdate;
+  var cmnumberupdate;
+  var number1update;
+  var name1update;
+  var calltypeupdate;
+  var timedateupdate;
+  var duration1update;
+  var accidupdate;
+  var simnameupdate;
+
+  void callLogs() async {
+
+    Iterable<CallLogEntry> entries = await CallLog.get();
+
+    fnumberupdate = entries.elementAt(0).formattedNumber;
+    cmnumberupdate = entries.elementAt(0).cachedMatchedNumber;
+    number1update = entries.elementAt(0).number;
+    name1update = entries.elementAt(0).name;
+    calltypeupdate = entries.elementAt(0).callType;
+    timedateupdate = entries.elementAt(0).timestamp;
+    duration1update = entries.elementAt(0).duration;
+    accidupdate = entries.elementAt(0).phoneAccountId;
+    simnameupdate = entries.elementAt(0).simDisplayName;
+    if(duration1update>30) {
+      CollectionReference users = firestore.collection("calling");
+      await users.add({
+        'Duration': duration1update,
+        'Lastname': 'Juma',
+        "User UID": currentUser?.uid,
+        "":"",
+      });
+    }else{
+      print("call duration is less than required seconds");
+    }
+  }
+  String? feedbackselected;
+  var feedback = [
+    'Customer will bay',
+    'system will be repossessed',
+    'at the shop for replacement',
+    'EO take and resale',
+    'not the owner',
+  ];
+  _callNumber(String phoneNumber) async {
+    String number = phoneNumber;
+    await FlutterPhoneDirectCaller.callNumber(number);
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              title: Text('Customer Feedback'),
+          content: Container(
+          height: 200,
+          child: Column(
+              children: <Widget>[
+                DropdownButtonFormField(
+                    decoration: InputDecoration(
+                      filled: true,
+                      labelText: "feedback",
+                      border: OutlineInputBorder(),
+                      hintStyle: TextStyle(color: Colors.grey[800]),
+                      hintText: "Name",
+                    ),
+                    items: feedback.map((String items) {
+                      return DropdownMenuItem(
+                        value: items,
+                        child: Text(items),
+                      );
+                    }).toList(),
+                    onChanged: (val) {
+                      setState(() {
+                        feedbackselected = val!;
+                      });
+                    }),
+                SizedBox(
+                  height: 20,
+                ),
+                Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('Cancel'),
+          ),
+                      ElevatedButton(
+                        onPressed: () {
+                         callLogs();
+                        },
+                        child: Text('Submit'),
+                      ),
+                    ]
+
+                )
+              ]
+          )
+          )
+          );
+        }
+    );
+
+  }
+  void _callLogs() async {
+
+    Iterable<CallLogEntry> entries = await CallLog.get();
+    for (var item in entries) {
+      print(item.name);
+    }
+  }
   bool isDescending = false;
   final List<Map<String, dynamic>> _allUsers = [
     {"id": 1, "name": "Collection Score", "request": "New Request","status":"Complete"},
@@ -192,10 +308,14 @@ class PendingCallsState extends State<PendingCalls> {
                                       Row(
                                         children: [
                                           IconButton(
-                                              onPressed: () {},
+                                              onPressed: () {
+                                                _callNumber("+255759943102");
+                                              },
                                               icon: Icon(Icons.phone)),
                                           IconButton(
-                                              onPressed: () {},
+                                              onPressed: () {
+                                                _callLogs();
+                                              },
                                               icon: Icon(
                                                   Icons.location_on_outlined))
                                         ],

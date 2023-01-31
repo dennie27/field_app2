@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "866219640103",
+    "firebase_url": "https://fieldapp-a7447-default-rtdb.firebaseio.com",
     "project_id": "fieldapp-a7447",
     "storage_bucket": "fieldapp-a7447.appspot.com"
   },
@@ -13,6 +14,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "866219640103-fmukpg924bl2camph279o7pbgirthn33.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sunking.field_app",
+            "certificate_hash": "27b11b9da52d7a5e4725b38d23ca7d27106cbb4c"
+          }
+        },
         {
           "client_id": "866219640103-4i7rbk11rt6rjlj6fobeu14v1vsn97ja.apps.googleusercontent.com",
           "client_type": 3

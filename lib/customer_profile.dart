@@ -41,8 +41,9 @@ class CProfileState extends State<CProfile> {
               dense: true,
             ),
           ),
-          Text("Payments"),
-          Text("data"),
+          Text("Payments hitory"),
+          Text("calls history"),
+          Text("visit history"),
 
 
         ],

@@ -13,13 +13,13 @@ import 'package:shared_preferences_android/shared_preferences_android.dart';
 import 'package:url_launcher_android/url_launcher_android.dart';
 import 'package:camera_avfoundation/camera_avfoundation.dart';
 import 'package:google_sign_in_ios/google_sign_in_ios.dart';
-import 'package:path_provider_ios/path_provider_ios.dart';
+import 'package:path_provider_foundation/path_provider_foundation.dart';
 import 'package:shared_preferences_foundation/shared_preferences_foundation.dart';
 import 'package:url_launcher_ios/url_launcher_ios.dart';
 import 'package:path_provider_linux/path_provider_linux.dart';
 import 'package:shared_preferences_linux/shared_preferences_linux.dart';
 import 'package:url_launcher_linux/url_launcher_linux.dart';
-import 'package:path_provider_macos/path_provider_macos.dart';
+import 'package:path_provider_foundation/path_provider_foundation.dart';
 import 'package:shared_preferences_foundation/shared_preferences_foundation.dart';
 import 'package:url_launcher_macos/url_launcher_macos.dart';
 import 'package:path_provider_windows/path_provider_windows.dart';
@@ -104,10 +104,10 @@ class _PluginRegistrant {
       }
 
       try {
-        PathProviderIOS.registerWith();
+        PathProviderFoundation.registerWith();
       } catch (err) {
         print(
-          '`path_provider_ios` threw an error: $err. '
+          '`path_provider_foundation` threw an error: $err. '
           'The app may not function as expected until you remove this plugin from pubspec.yaml'
         );
         rethrow;
@@ -166,10 +166,10 @@ class _PluginRegistrant {
 
     } else if (Platform.isMacOS) {
       try {
-        PathProviderMacOS.registerWith();
+        PathProviderFoundation.registerWith();
       } catch (err) {
         print(
-          '`path_provider_macos` threw an error: $err. '
+          '`path_provider_foundation` threw an error: $err. '
           'The app may not function as expected until you remove this plugin from pubspec.yaml'
         );
         rethrow;

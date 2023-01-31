@@ -1,4 +1,5 @@
 // main.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class PendingTask extends StatefulWidget {
@@ -8,7 +9,13 @@ class PendingTask extends StatefulWidget {
   PendingTaskState createState() => PendingTaskState();
 }
 class PendingTaskState extends State<PendingTask> {
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+
+
+
   bool isDescending = false;
+
   final List<Map<String, dynamic>> _allUsers = [
     {"id": 1, "name": "Collection Score", "request": "New Request","status":"Complete"},
     {"id": 2, "name": "Team Management", "request": "pending Approval","status":"Complete"},
@@ -29,7 +36,21 @@ class PendingTaskState extends State<PendingTask> {
     // at the beginning, all users are shown
     _foundUsers = _allUsers;
     super.initState();
+
   }
+
+
+   Future<QuerySnapshot> getFilteredData() async {
+    // Get a reference to the Firestore collection
+    CollectionReference collection = firestore.collection('task');
+    QuerySnapshot alldata = await collection.get();
+
+    // Perform the query and return the snapshot
+
+    return alldata;
+  }
+
+// Use the function to retrieve filtered data
 
   // This function is called whenever the text field changes
   void _searchFilter(String enteredKeyword) {
@@ -136,64 +157,67 @@ class PendingTaskState extends State<PendingTask> {
             const SizedBox(
               height: 20,
             ),
-            Expanded(
-              child: _foundUsers.isNotEmpty
-                  ? ListView.builder(
-                      itemCount: _foundUsers.length,
-                      itemBuilder: (context, index) {
-                        final user = _foundUsers[index];
-                        final sortedItems = _foundUsers
-                          ..sort((item1, item2) => isDescending
-                              ? item2['name'].compareTo(item1['name'])
-                              : item1['name'].compareTo(item2['name']));
-                        final name = sortedItems[index]['name'];
-                       return InkWell(
-                          onTap: () {},
-                          key: ValueKey(_foundUsers[index]["id"]),
-                          child: Row(
-                            children: [
-                              CircleAvatar(
-                                backgroundColor: Colors.blueGrey.shade800,
-                                radius: 35,
-                                child: Text(
-                                    _foundUsers[index]["id"].toString()),
-                              ),
-                              SizedBox(
-                                width: 5,
-                              ),
-                              Flexible(
-                                child: Container(
-                                  width: 350,
-                                  height: 90,
-                                  child: Card(
-                                    elevation: 5,
-                                    child: Padding(
-                                      padding:
-                                      EdgeInsets.fromLTRB(20.0, 10, 0, 0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                        children: [
-
-                                          Text(user['name']),
-                                          Text('${_foundUsers[index]["request"]
-                                              .toString()} '),
-                                          Text(name),
-                                          Text("status: ${user['status']}"),
-                                        ],
-                                      ),
+            StreamBuilder(
+              stream: firestore.collection("task").snapshots(),
+              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (!snapshot.hasData) {
+                  return CircularProgressIndicator();
+                }return Expanded(
+                  child: snapshot.hasData
+                      ? ListView.separated(
+                    itemCount: snapshot.data!.docs.length,
+                    itemBuilder:  (BuildContext context, int index) {
+                      DocumentSnapshot data = snapshot.data!.docs[index];
+                      final user = _foundUsers[index];
+                      /*final sortedItems = _foundUsers
+                        ..sort((item1, item2) => isDescending
+                            ? item2['name'].compareTo(item1['name'])
+                            : item1['name'].compareTo(item2['name']));
+                      final name = sortedItems[index]['name'];*/
+                      return InkWell(
+                        onTap: () {},
+                        key: ValueKey(snapshot.data!.docs[index]),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: Colors.blueGrey.shade800,
+                              radius: 35,
+                              child: Text("1"),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Flexible(
+                              child: Container(
+                                width: 350,
+                                height: 90,
+                                child: Card(
+                                  elevation: 5,
+                                  child: Padding(
+                                    padding:
+                                    EdgeInsets.fromLTRB(20.0, 10, 0, 0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                      children: [
+                                        Text(data['submited_by']),
+                                        Text("Total request"),
+                                      ],
                                     ),
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
-                        );
-                      })
-                  : const Text(
-                      'No results found',
-                      style: TextStyle(fontSize: 15),
-                    ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }, separatorBuilder: (BuildContext context, int index) => Divider(),)
+                      : const Text(
+                    'No results found',
+                    style: TextStyle(fontSize: 15),
+                  ),
+                );
+              },
             ),
           ],
         );

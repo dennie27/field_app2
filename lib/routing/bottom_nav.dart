@@ -1,26 +1,26 @@
 
 
-import 'acl_task.dart';
-import 'routing/appbar.dart';
+import '../acl_task.dart';
+import 'appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import '../utils/themes/theme.dart';
-import '../task.dart';
-import '../dashboard.dart';
+import '../../utils/themes/theme.dart';
+import '../../task.dart';
+import '../../dashboard.dart';
 
-class HomePage extends StatefulWidget{
+class NavPage extends StatefulWidget{
   @override
   State<StatefulWidget> createState() {
-    return HomePageState();
+    return NavPagePageState();
   }
 
 }
-class HomePageState extends State<HomePage> {
+class NavPagePageState extends State<NavPage> {
   int _selectedIndex = 0;
   final List<Widget> _tabs = <Widget>[
     Home(),
     Task(),
-    Customer()
+    //Customer()
   ];
   @override
   Widget build(BuildContext context) {
@@ -56,16 +56,16 @@ class HomePageState extends State<HomePage> {
               tabs: const [
                 GButton(
                   icon: Icons.home,
-                  text: 'Home',
+                  text: 'Customer',
                 ),
                 GButton(
                   icon: Icons.task,
-                  text: 'Task',
+                  text: 'task',
                 ),
-                GButton(
+                /*GButton(
                   icon: Icons.phone,
                   text: 'Customer',
-                ),
+                ),*/
               ],
               onTabChange: (index){
                 setState(() {
