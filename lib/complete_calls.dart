@@ -1,16 +1,125 @@
 // main.dart
+import 'package:call_log/call_log.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'customer_profile.dart';
 
 class CompleteCalls extends StatefulWidget {
+
   const CompleteCalls({Key? key}) : super(key: key);
 
   @override
   CompleteCallsState createState() => CompleteCallsState();
 }
 class CompleteCallsState extends State<CompleteCalls> {
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  var currentUser = FirebaseAuth.instance.currentUser;
+  var fnumberupdate;
+  var cmnumberupdate;
+  var number1update;
+  var name1update;
+  var calltypeupdate;
+  var timedateupdate;
+  var duration1update;
+  var accidupdate;
+  var simnameupdate;
+  void callLogs() async {
+
+    Iterable<CallLogEntry> entries = await CallLog.get();
+
+    fnumberupdate = entries.elementAt(0).formattedNumber;
+    cmnumberupdate = entries.elementAt(0).cachedMatchedNumber;
+    number1update = entries.elementAt(0).number;
+    name1update = entries.elementAt(0).name;
+    calltypeupdate = entries.elementAt(0).callType;
+    timedateupdate = entries.elementAt(0).timestamp;
+    duration1update = entries.elementAt(0).duration;
+    accidupdate = entries.elementAt(0).phoneAccountId;
+    simnameupdate = entries.elementAt(0).simDisplayName;
+    if(duration1update>30) {
+      CollectionReference users = firestore.collection("calling");
+      await users.add({
+        'Duration': duration1update,
+        'Lastname': 'Juma',
+        "User UID": currentUser?.uid,
+        "":"",
+      });
+    }else{
+      print("call duration is less than required seconds");
+    }
+  }
+  String? feedbackselected;
+  var feedback = [
+    'Customer will bay',
+    'system will be repossessed',
+    'at the shop for replacement',
+    'EO take and resale',
+    'not the owner',
+  ];
+  _callNumber(String phoneNumber) async {
+    String number = phoneNumber;
+    await FlutterPhoneDirectCaller.callNumber(number);
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              title: Text('Customer Feedback'),
+              content: Container(
+                  height: 200,
+                  child: Column(
+                      children: <Widget>[
+                        DropdownButtonFormField(
+                            decoration: InputDecoration(
+                              filled: true,
+                              labelText: "feedback",
+                              border: OutlineInputBorder(),
+                              hintStyle: TextStyle(color: Colors.grey[800]),
+                              hintText: "Name",
+                            ),
+                            items: feedback.map((String items) {
+                              return DropdownMenuItem(
+                                value: items,
+                                child: Text(items),
+                              );
+                            }).toList(),
+                            onChanged: (val) {
+                              setState(() {
+                                feedbackselected = val!;
+                              });
+                            }),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text('Cancel'),
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  callLogs();
+                                },
+                                child: Text('Submit'),
+                              ),
+                            ]
+
+                        )
+                      ]
+                  )
+              )
+          );
+        }
+    );
+
+  }
   bool isDescending = false;
+
   final List<Map<String, dynamic>> _allUsers = [
     {"id": 1, "name": "Collection Score", "request": "New Request","status":"Complete"},
     {"id": 2, "name": "Team Management", "request": "pending Approval","status":"Complete"},
@@ -136,84 +245,100 @@ class CompleteCallsState extends State<CompleteCalls> {
               ],
             ),
             const SizedBox(
-              height: 20,
+              height: 10,
             ),
-            Expanded(
-              child: _foundUsers.isNotEmpty
-                  ? ListView.builder(
-                  itemCount: _foundUsers.length,
-                  itemBuilder: (context, index) {
-                    final user = _foundUsers[index];
-                    final sortedItems = _foundUsers
-                      ..sort((item1, item2) => isDescending
-                          ? item2['name'].compareTo(item1['name'])
-                          : item1['name'].compareTo(item2['name']));
-                    final name = sortedItems[index]['name'];
-                    return InkWell(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CProfile(),
-                            ));
-                      },
-                      key: ValueKey(_foundUsers[index]["id"]),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: Colors.blueGrey.shade800,
-                            radius: 30,
-                            child: Text(_foundUsers[index]["id"].toString()),
-                          ),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          Flexible(
-                            child: Container(
-                              width: 340,
-                              height: 75,
-                              child: Card(
-                                elevation: 5,
-                                child: Padding(
-                                  padding: EdgeInsets.fromLTRB(20.0, 10, 0, 0),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+            StreamBuilder(
+                stream: firestore.collection("new_calling").where("Status",isEqualTo: "Complete").snapshots(),
+                builder:(BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot){
+                  if (!snapshot.hasData) {
+                    return Column(
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 10,),
+                        Text('Loading...'),
+                      ],
+                    );
+                  }return Expanded(
+                    child: snapshot.hasData
+                        ? ListView.separated(
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder:(BuildContext context, int index){
+                        DocumentSnapshot data = snapshot.data!.docs[index];
+
+                        /*final sortedItems = _foundUsers
+                          ..sort((item1, item2) => isDescending
+                              ? item2['name'].compareTo(item1['name'])
+                              : item1['name'].compareTo(item2['name']));
+                        final name = sortedItems[index]['name'];*/
+                        return InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CProfile(id: data.id),
+                                ));
+                          },
+                          key: ValueKey(snapshot.data!.docs[index]),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: Colors.blueGrey.shade800,
+                                radius: 20,
+                                child: Text("1"),
+                              ),
+                              SizedBox(
+                                width: 2,
+                              ),
+                              Flexible(
+                                child: Container(
+                                  height: 80,
+                                  child: Card(
+                                    elevation: 5,
+                                    child: Padding(
+                                      padding: EdgeInsets.fromLTRB(5.0, 5, 0, 0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text("Customer Name"),
-                                          Text("Area"),
-                                          Text("Days Disable"),
+                                          Column(
+                                            crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                            children: [
+                                              Text(data['Customer Name']),
+                                              Text(data['Account Number'].toString()),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+
+                                              IconButton(
+                                                  onPressed: () {
+                                                    _callNumber(data['Customer Phone Number']);
+                                                  },
+                                                  icon: Icon(Icons.phone)),
+                                              IconButton(
+                                                  onPressed: () {
+                                                  },
+                                                  icon: Icon(
+                                                      Icons.location_on_outlined))
+                                            ],
+                                          )
                                         ],
                                       ),
-                                      Row(
-                                        children: [
-                                          IconButton(
-                                              onPressed: () {},
-                                              icon: Icon(Icons.phone)),
-                                          IconButton(
-                                              onPressed: () {},
-                                              icon: Icon(
-                                                  Icons.location_on_outlined))
-                                        ],
-                                      )
-                                    ],
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
+                            ],
                           ),
-                        ],
-                      ),
-                    );
-                  })
-                  : const Text(
-                'No results found',
-                style: TextStyle(fontSize: 15),
-              ),
+                        );
+                      }, separatorBuilder: (BuildContext context, int index) => Divider(),)
+                        : const Text(
+                      'No results found',
+                      style: TextStyle(fontSize: 15),
+                    ),
+                  );
+                }
             )
           ],
         );

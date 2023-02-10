@@ -1,4 +1,6 @@
 // main.dart
+import 'package:FieldApp/services/calls_detail.dart';
+import 'package:FieldApp/services/user_detail.dart';
 import 'package:call_log/call_log.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -26,7 +28,8 @@ class PendingCallsState extends State<PendingCalls> {
   var accidupdate;
   var simnameupdate;
 
-  void callLogs() async {
+  void callLogs(String docid) async {
+    String _docid = docid;
 
     Iterable<CallLogEntry> entries = await CallLog.get();
 
@@ -39,13 +42,14 @@ class PendingCallsState extends State<PendingCalls> {
     duration1update = entries.elementAt(0).duration;
     accidupdate = entries.elementAt(0).phoneAccountId;
     simnameupdate = entries.elementAt(0).simDisplayName;
-    if(duration1update>30) {
-      CollectionReference users = firestore.collection("calling");
-      await users.add({
+    if(duration1update<30) {
+      CollectionReference newCalling = firestore.collection("new_calling");
+      await newCalling.doc(_docid).update({
         'Duration': duration1update,
-        'Lastname': 'Juma',
         "User UID": currentUser?.uid,
-        "":"",
+        "date": DateTime.now(),
+        "call Type": "Called",
+        "Status": "Complete"
       });
     }else{
       print("call duration is less than required seconds");
@@ -59,8 +63,10 @@ class PendingCallsState extends State<PendingCalls> {
     'EO take and resale',
     'not the owner',
   ];
-  _callNumber(String phoneNumber) async {
+
+  _callNumber(String phoneNumber, String docid) async {
     String number = phoneNumber;
+    String _docid = docid;
     await FlutterPhoneDirectCaller.callNumber(number);
     showDialog(
         context: context,
@@ -104,7 +110,7 @@ class PendingCallsState extends State<PendingCalls> {
           ),
                       ElevatedButton(
                         onPressed: () {
-                         callLogs();
+                         callLogs(_docid);
                         },
                         child: Text('Submit'),
                       ),
@@ -119,14 +125,9 @@ class PendingCallsState extends State<PendingCalls> {
     );
 
   }
-  void _callLogs() async {
 
-    Iterable<CallLogEntry> entries = await CallLog.get();
-    for (var item in entries) {
-      print(item.name);
-    }
-  }
   bool isDescending = false;
+
   final List<Map<String, dynamic>> _allUsers = [
     {"id": 1, "name": "Collection Score", "request": "New Request","status":"Complete"},
     {"id": 2, "name": "Team Management", "request": "pending Approval","status":"Complete"},
@@ -204,7 +205,7 @@ class PendingCallsState extends State<PendingCalls> {
           children: [
             Row(
               children: [
-                Container(
+               /* Container(
                   alignment: Alignment.center,
                   child: IconButton(
                     onPressed: () =>
@@ -241,7 +242,7 @@ class PendingCallsState extends State<PendingCalls> {
                     Icons.filter_list_alt,color: Colors.yellow
                   ),
 
-                ),
+                ),*/
     Expanded(
       child: TextField(
       onChanged: (value) => _searchFilter(value),
@@ -252,88 +253,101 @@ class PendingCallsState extends State<PendingCalls> {
               ],
             ),
             const SizedBox(
-              height: 20,
+              height: 10,
             ),
-            Expanded(
-              child: _foundUsers.isNotEmpty
-                  ? ListView.builder(
-                  itemCount: _foundUsers.length,
-                  itemBuilder: (context, index) {
-                    final user = _foundUsers[index];
-                    final sortedItems = _foundUsers
-                      ..sort((item1, item2) => isDescending
-                          ? item2['name'].compareTo(item1['name'])
-                          : item1['name'].compareTo(item2['name']));
-                    final name = sortedItems[index]['name'];
-                    return InkWell(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CProfile(),
-                            ));
-                      },
-                      key: ValueKey(_foundUsers[index]["id"]),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: Colors.blueGrey.shade800,
-                            radius: 30,
-                            child: Text(_foundUsers[index]["id"].toString()),
-                          ),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          Flexible(
-                            child: Container(
-                              width: 340,
-                              height: 75,
-                              child: Card(
-                                elevation: 5,
-                                child: Padding(
-                                  padding: EdgeInsets.fromLTRB(20.0, 10, 0, 0),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+    StreamBuilder<QuerySnapshot>(
+    stream:firestore.collection("new_calling").where("Area",isEqualTo:"Mwanza").snapshots() ,
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (!snapshot.hasData) {
+                  return Column(
+                   children: [
+                     CircularProgressIndicator(),
+                     SizedBox(height: 10,),
+                     Text('Loading...'),
+                   ],
+                 );
+                }return Expanded(
+                  child: snapshot.hasData
+                      ? ListView.separated(
+                      itemCount: snapshot.data!.size,
+                    itemBuilder: (context, index) {
+                        DocumentSnapshot data = snapshot.data!.docs[index];
+
+                        /*final sortedItems = _foundUsers
+                          ..sort((item1, item2) => isDescending
+                              ? item2['name'].compareTo(item1['name'])
+                              : item1['name'].compareTo(item2['name']));
+                        final name = sortedItems[index]['name'];*/
+                        return InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CProfile(id: data.id),
+                                ));
+                          },
+                          key: ValueKey(snapshot.data!.docs[index]),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: Colors.blueGrey.shade800,
+                                radius: 20,
+                                child: Text(snapshot.data!.docs[index].toString()),
+                              ),
+                              SizedBox(
+                                width: 2,
+                              ),
+                              Flexible(
+                                child: Container(
+                                  height: 80,
+                                  child: Card(
+                                    elevation: 5,
+                                    child: Padding(
+                                      padding: EdgeInsets.fromLTRB(5.0, 5, 0, 0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text("Customer Name"),
-                                          Text("Area"),
-                                          Text("Days Disable"),
+                                          Column(
+                                            crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                            children: [
+                                              Text(data['Customer Name']),
+                                              Text(data['Account Number'].toString()),
+
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+
+                                                IconButton(
+                                                  onPressed: () {
+                                                    _callNumber(data['Customer Phone Number'],data.id);
+                                                  },
+                                                  icon: Icon(Icons.phone)),
+                                                IconButton(
+                                                  onPressed: () {
+                                                  },
+                                                  icon: Icon(
+                                                      Icons.location_on_outlined))
+                                            ],
+                                          )
                                         ],
                                       ),
-                                      Row(
-                                        children: [
-                                          IconButton(
-                                              onPressed: () {
-                                                _callNumber("+255759943102");
-                                              },
-                                              icon: Icon(Icons.phone)),
-                                          IconButton(
-                                              onPressed: () {
-                                                _callLogs();
-                                              },
-                                              icon: Icon(
-                                                  Icons.location_on_outlined))
-                                        ],
-                                      )
-                                    ],
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
+                            ],
                           ),
-                        ],
-                      ),
-                    );
-                  })
-                  : const Text(
-                'No results found',
-                style: TextStyle(fontSize: 15),
-              ),
+                        );
+                      }, separatorBuilder: (BuildContext context, int index) => Divider(),)
+                      : const Text(
+                    'No results found',
+                    style: TextStyle(fontSize: 15),
+                  ),
+                );
+              }
             ),
           ],
         );

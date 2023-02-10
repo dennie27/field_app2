@@ -242,6 +242,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "get",
+      "rootUri": "file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/get-4.6.5",
+      "packageUri": "lib/",
+      "languageVersion": "2.15"
+    },
+    {
       "name": "getwidget",
       "rootUri": "file:///C:/Users/User/AppData/Local/Pub/Cache/hosted/pub.dev/getwidget-3.0.1",
       "packageUri": "lib/",
@@ -674,7 +680,7 @@
       "languageVersion": "2.18"
     }
   ],
-  "generated": "2023-01-29T16:46:31.521411Z",
+  "generated": "2023-02-05T07:29:15.518012Z",
   "generator": "pub",
   "generatorVersion": "3.0.0-179.0.dev"
 }

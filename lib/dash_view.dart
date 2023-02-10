@@ -6,6 +6,8 @@ import 'package:http/http.dart' as http;
 import 'package:percent_indicator/circular_percent_indicator.dart';
 class DashView extends StatefulWidget {
   @override
+  final Region;
+  DashView(this.Region);
   DashViewState createState() =>  DashViewState();
 }
 class DashViewState extends State<DashView> {

@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:core';
 import 'package:FieldApp/customer_profile.dart';
 import 'package:FieldApp/pending_calls.dart';
+import 'package:FieldApp/services/calls_detail.dart';
+import 'package:FieldApp/services/user_detail.dart';
 import 'package:FieldApp/utils/themes/theme.dart';
 import 'package:call_log/call_log.dart';
 import 'package:flutter/material.dart';
@@ -18,8 +20,8 @@ class Customer extends StatefulWidget {
 }
 
 class CustomerState extends State<Customer> {
-
   bool isDescending = false;
+
   void _statusFilter(String _status) {
     List<Map<String, dynamic>> results = [];
     switch (_status) {
@@ -54,12 +56,14 @@ class CustomerState extends State<Customer> {
           results = _allUsers;
         }
         break;
-      default: {
-        results = _allUsers;
-      }
+      default:
+        {
+          results = _allUsers;
+        }
     }
 
     // Refresh the UI
+    final dennis;
     setState(() {
       _foundUsers = results;
     });
@@ -141,22 +145,24 @@ class CustomerState extends State<Customer> {
       // we use the toLowerCase() method to make it case-insensitive
     }
 
-    // Refresh the UI
-    setState(() {
+    // Refresh the
+
+    setState(() async {
       _foundUsers = results;
     });
   }
+
   initState() {
     // at the beginning, all users are shown
     _foundUsers = _allUsers;
     super.initState();
   }
 
-
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           KpiTittle(
             kpicolor: AppColor.mycolor,
@@ -166,19 +172,19 @@ class CustomerState extends State<Customer> {
           Row(
             children: [
               RowData(
-                value: '70',
+                value: 0,
                 label: 'Call Made',
               ),
               RowData(
-                value: '30',
                 label: 'Calls Pending',
+                value: 0,
               ),
               RowData(
-                value: '70%',
+                value: 0,
                 label: 'Complete rate',
               ),
               RowData(
-                value: '40%',
+                value: 32,
                 label: 'Success Calls',
               )
             ],
@@ -191,19 +197,19 @@ class CustomerState extends State<Customer> {
           Row(
             children: [
               RowData(
-                value: '20',
+                value: 20,
                 label: 'Visit Made',
               ),
               RowData(
-                value: '40',
+                value: 40,
                 label: 'Visit Pending',
               ),
               RowData(
-                value: '35%',
+                value: 35,
                 label: 'Complete rate',
               ),
               RowData(
-                value: '20%',
+                value: 20,
                 label: 'Success Visit',
               )
             ],
@@ -212,22 +218,19 @@ class CustomerState extends State<Customer> {
             height: 15,
           ),
           Container(
-            constraints: BoxConstraints.expand(height: 40),
             child: TabBar(tabs: [
-              Tab(text: "Pending",),
+              Tab(
+                text: "Pending",
+              ),
               Tab(text: "Completed"),
             ]),
           ),
           Expanded(
             child: Container(
-              margin: EdgeInsets.all(15),
+              margin: EdgeInsets.all(5),
               child: TabBarView(
-                children: [
-                  PendingCalls(),
-                  CompleteCalls()
-                ],
+                children: [PendingCalls(), CompleteCalls()],
               ),
-
             ),
           )
         ],
@@ -262,7 +265,7 @@ class KpiTittle extends StatelessWidget {
 }
 
 class RowData extends StatelessWidget {
-  final value;
+  final int value;
   final String label;
 
   const RowData({Key? key, required this.value, required this.label})
@@ -270,25 +273,59 @@ class RowData extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: InkWell(
-        onTap: () {},
-        child: Card(
-          elevation: 3,
-          child: Container(
-            height: 50,
-            width: 50,
-            child: Column(
-              children: [
-                Text(value,
-                    style: TextStyle(
-                      fontSize: 30,
-                    )),
-                Text(label, style: TextStyle(fontSize: 9))
-              ],
-            ),
-          ),
-        ),
-      ),
+      child: FutureBuilder<dynamic>(
+          future: USerCallDetail().CountDataByArea(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return InkWell(
+                onTap: () {},
+                child: Card(
+                  elevation: 3,
+                  child: Container(
+                    height: 40,
+                    width: 60,
+                    child: Column(
+                      children: [
+                        Text(snapshot.data.toString(),
+                            style: TextStyle(
+                              fontSize: 15,
+                            )),
+                        Text(label, style: TextStyle(fontSize: 9))
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            } else if (snapshot.hasError) {
+              return InkWell(
+                onTap: () {},
+                child: Card(
+                  elevation: 3,
+                  child: Container(
+                    height: 40,
+                    width: 60,
+                    child: Column(
+                      children: [
+                        Text('00',
+                            style: TextStyle(
+                              fontSize: 15,
+                            )),
+                        Text('error', style: TextStyle(fontSize: 9))
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            } else {
+              return Column(children: [
+                CircularProgressIndicator(),
+                SizedBox(
+                  height: 10,
+                ),
+                Text('run...'),
+              ]);
+            }
+          }),
     );
   }
 }

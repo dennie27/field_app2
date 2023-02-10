@@ -1,13 +1,15 @@
 import 'package:FieldApp/dash_view.dart';
-import 'package:FieldApp/task_view.dart';
+import 'package:FieldApp/services/region_data.dart';
+import 'package:FieldApp/services/user_detail.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'utils/themes/theme.dart';
 
 
 
 class Home extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     var currentUser = FirebaseAuth.instance.currentUser;
@@ -42,15 +44,15 @@ class Home extends StatelessWidget {
 
                   Row(children: [
                     RowData(
-                      value: '25',
+                      value: 'Collection Score',
                       label: 'Score',
                     ),
                     RowData(
-                      value: '45',
+                      value: 'Repayment Speed 2',
                       label: 'Repayment Speed',
                     ),
                     RowData(
-                      value: '21',
+                      value: 'At Risk Rate',
                       label: 'At Risk Rate',
                     ),
                   ]),
@@ -64,15 +66,15 @@ class Home extends StatelessWidget {
                   Row(
                     children: [
                       RowData(
-                        value: '20',
+                        value: 'Disabled Rate',
                         label: 'Disabe Rate',
                       ),
                       RowData(
-                        value: '20',
+                        value: 'Count Replacements',
                         label: 'FSE Revamp',
                       ),
                       RowData(
-                        value: '20',
+                        value: 'Count Replacements',
                         label: 'Audity',
                       ),
                     ],
@@ -91,19 +93,19 @@ class Home extends StatelessWidget {
                   Row(
                     children: [
                       RowData(
-                        value: '10',
+                        value: 'Count Replacements',
                         label: 'Fraud Case SLA',
                       ),
                       RowData(
-                        value: '40',
+                        value: 'Count Replacements',
                         label: 'CC Escalation',
                       ),
                       RowData(
-                        value: '50',
+                        value: 'Count Replacements',
                         label: 'Replacement SLA',
                       ),
                       RowData(
-                        value: '90',
+                        value: 'Count Replacements',
                         label: 'Change of Details',
                       ),
                     ],
@@ -122,15 +124,15 @@ class Home extends StatelessWidget {
                   Row(
                     children: [
                       RowData(
-                        value: '10',
+                        value: 'Count Replacements',
                         label: 'Agent Restriction',
                       ),
                       RowData(
-                        value: '132',
+                        value: 'Count Replacements',
                         label: 'Audit Reports',
                       ),
                       RowData(
-                        value: '132',
+                        value: 'Count Replacements',
                         label: 'Repossession Rate',
                       ),
                     ],
@@ -148,11 +150,11 @@ class Home extends StatelessWidget {
                   Row(
                     children: [
                       RowData(
-                        value: '10',
-                        label: '',
+                        value: 'Count Replacements',
+                        label: 'Replacements',
                       ),
                       RowData(
-                        value: '10',
+                        value: 'Count Replacements',
                         label: 'Replacement SLA',
                       ),
                     ],
@@ -167,37 +169,92 @@ class Home extends StatelessWidget {
   }
 }
 
-class RowData extends StatelessWidget {
+class RowData extends StatefulWidget {
+
   final value;
   final String label;
 
   const RowData({Key? key, required this.value, required this.label})
       : super(key: key);
+
   @override
+  State<RowData> createState() => _RowDataState();
+}
+
+class _RowDataState extends State<RowData> {
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  @override
+
   Widget build(BuildContext context) {
+
     return Expanded(
-      child: InkWell(
-        onTap: (){
+      child:  FutureBuilder(
+          future:  firestore.collection("TZ_region").where("Region", isEqualTo: "Lake Zone").get(),
+          builder: (context, snapshot) {
+    if (snapshot.hasData) {
+      //DocumentSnapshot data = snapshot.data;
+      var data = snapshot.data!.docs[0];
+      return InkWell(
+        onTap: () {
           Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => DashView(),
+                builder: (context) => DashView(data['Region']),
               ));
 
         },
+        key: ValueKey(snapshot.data),
         child: Card(
           elevation: 8,
           child: Container(
             height: 70,
             width: 50,
             child: Column(
-                children: [
-                  Text(value, style: TextStyle(fontSize: 30,)),
-                  Text(label, style: TextStyle(fontSize: 9))
-                ],
-              ),
+              children: [
+                Text(data[widget.value], style: TextStyle(fontSize: 25,)),
+                Text(widget.label, style: TextStyle(fontSize: 9))
+              ],
+            ),
           ),
         ),
+      );
+    }
+    else if(snapshot.hasError){
+      return InkWell(
+        onTap: (){
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DashView('Lake zone'),
+              ));
+        },
+
+        child: Card(
+          elevation: 8,
+          child: Container(
+            height: 70,
+            width: 50,
+            child: Column(
+              children: [
+                Text('000', style: TextStyle(fontSize: 30,)),
+                Text(snapshot.error.toString(), style: TextStyle(fontSize: 9))
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+    else{
+      return Column(children: [
+        CircularProgressIndicator(),
+        SizedBox(
+          height: 10,
+        ),
+        Text('run...'),
+      ]);
+    }
+    }
+
       ),
     );
   }
