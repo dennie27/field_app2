@@ -15,6 +15,7 @@ class SKAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => Size.fromHeight(height);
 
+
   @override
   Widget build(BuildContext context) {
     return AppBar(
@@ -33,7 +34,7 @@ class SKAppBar extends StatelessWidget implements PreferredSizeWidget {
           Authentication.signOut();
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
-              builder: (context) =>Login(
+              builder: (context) => Login(
 
               ),
             ),

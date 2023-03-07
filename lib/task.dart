@@ -1,10 +1,10 @@
 
+import 'package:FieldApp/services/region_data.dart';
 import 'package:FieldApp/task_table.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'pending_task.dart';
 import 'team_task.dart';
 import 'package:flutter/material.dart';
-import 'utils/themes/theme.dart';
 import 'add_task.dart';
 import 'package:intl/intl.dart';
 
@@ -19,11 +19,6 @@ class Task extends StatelessWidget {
     }
     String firestore = FirebaseFirestore.instance.collection('task').snapshots().length.toString();
 
-
-    var process = 0;
-    var pilot = 0;
-    var portfolio = 0;
-    var customer = 0;
     return Scaffold(
       body: DefaultTabController(
         length: 3,
@@ -72,35 +67,35 @@ class Task extends StatelessWidget {
 
                         TaskList(
                           task_title: 'Collection Drive',
-                          priority: 'High',
+                          
                           task_complete:"9",
                           task: '5',
 
                         ),
                         TaskList(
                           task_title: 'Process Management',
-                          priority: 'High',
+                         
                           task_complete: '45',
                           task: '5',
 
                         ),
                         TaskList(
                           task_title: 'Pilot Management',
-                          priority: 'Normal',
+                         
                           task_complete: '45',
                           task: '5',
 
                         ),
                         TaskList(
                           task_title: 'Portfolio Quality',
-                          priority: 'Low',
+                          
                           task_complete: '45',
                           task: '5',
 
                         ),
                         TaskList(
                           task_title: 'Customer Management',
-                          priority: 'Normal',
+                         
                           task_complete: '45',
                           task: '5',
 
@@ -127,23 +122,30 @@ class Task extends StatelessWidget {
 }
 
 
-class TaskList extends StatelessWidget {
+class TaskList extends StatefulWidget {
 
   final String task_title;
-  final String priority;
+  
   final String task;
   final String task_complete;
   const TaskList({Key? key,
     required this.task_title,
-    required this.priority,
     required this.task,
     required this.task_complete,
 
   })
       : super(key: key);
 
+
+
+  @override
+  State<TaskList> createState() => _TaskListState();
+}
+
+class _TaskListState extends State<TaskList> {
   @override
   Widget build(BuildContext context) {
+
     DateTime now = DateTime.now();
     String formattedDate = DateFormat('yyyy-MM').format(now);
     return InkWell(
@@ -151,38 +153,68 @@ class TaskList extends StatelessWidget {
         Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => MyTaskView(endPoint: 'tasks',title: task_title,),
+              builder: (context) => MyTaskView(endPoint: 'tasks',title: widget.task_title,),
             ));
       },
 
-      child: Container(
+      child: StreamBuilder<int>(
+        stream: TaskData().CountTask(widget.task_title).asStream(),
+        builder: (context, snapshot) {
+          if(snapshot.hasData){
+            return Container(
+              height: 60,
+              padding:EdgeInsets.only(left: 5,right: 5,bottom: 0,top: 5),
+              margin: EdgeInsets.only(left: 5,right: 5,bottom: 10,top: 5),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.black)
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(widget.task_title,
+                    style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
+                  SizedBox(height:5),
+                  Row(children: [
+                    StreamBuilder(
+                      stream: TaskData().CountTask(widget.task_title).asStream(),
+                      builder: (context, snapshot){
+                    return Text(snapshot.data.toString()+" Total,",style: TextStyle(color: Colors.red),);
+                    },
+                    ),
+                    StreamBuilder(
+                      stream: TaskData().CountByStatus(widget.task_title,'Completed').asStream(),
+                      builder: (context, snapshot){
+                        return Text(snapshot.data.toString()+" Completed, ",style: TextStyle(color: Colors.green),);
+                      },
+                    ),
+                    StreamBuilder(
+                      stream: TaskData().CountByStatus(widget.task_title,'Pending').asStream(),
+                      builder: (context, snapshot){
+                        return  Text(snapshot.data.toString()+" Pending",style: TextStyle(color: Colors.orange));
+                      },
+                    ),
+                  ],),
 
-        height: 60,
-        padding:EdgeInsets.only(left: 5,right: 5,bottom: 0,top: 5),
-        margin: EdgeInsets.only(left: 5,right: 5,bottom: 10,top: 5),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: AppColor.mycolor)
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(task_title,
-              style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
-            SizedBox(height:5),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                ],
+              ),
+            );
+          }
+          else if(snapshot.hasError){
+            return Text('Error Loding data');
+          }else{
+            return Column(
               children: [
-                Text(task_complete+"% Completed",style: TextStyle(color: Colors.green),),
-                Text(task+" Total Task",style: TextStyle(color: Colors.red),),
-                Text("4 Pending Task",style: TextStyle(color: Colors.yellow))
-
+                CircularProgressIndicator(),
+                SizedBox(
+                  height: 10,
+                ),
+                Text('Loading...'),
               ],
-            ),
+            );
+          }
 
-
-          ],
-        ),
+        }
       ),
 
     );

@@ -189,8 +189,8 @@ class _RowDataState extends State<RowData> {
 
     return Expanded(
       child:  FutureBuilder(
-          future:  firestore.collection("TZ_region").where("Region", isEqualTo: "Lake Zone").get(),
-          builder: (context, snapshot) {
+          future:  RegionData().getData(),
+          builder: (BuildContext context, snapshot) {
     if (snapshot.hasData) {
       //DocumentSnapshot data = snapshot.data;
       var data = snapshot.data!.docs[0];
@@ -199,7 +199,7 @@ class _RowDataState extends State<RowData> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => DashView(data['Region']),
+                builder: (context) => DashView(widget.value,data[widget.value]),
               ));
 
         },
@@ -221,13 +221,7 @@ class _RowDataState extends State<RowData> {
     }
     else if(snapshot.hasError){
       return InkWell(
-        onTap: (){
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => DashView('Lake zone'),
-              ));
-        },
+        onTap: (){},
 
         child: Card(
           elevation: 8,

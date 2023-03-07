@@ -1,6 +1,8 @@
 
 
-import '../acl_task.dart';
+import 'package:FieldApp/services/auth_services.dart';
+
+import '../area/acl_task.dart';
 import 'appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
@@ -16,10 +18,14 @@ class NavPage extends StatefulWidget{
 
 }
 class NavPagePageState extends State<NavPage> {
+ @override
+  void dispose() {
+   super.dispose();
+ }
   int _selectedIndex = 0;
   final List<Widget> _tabs = <Widget>[
-    Home(),
-    Task(),
+    /*Home(),
+    Task(),*/
     Customer()
   ];
   @override
@@ -54,15 +60,15 @@ class NavPagePageState extends State<NavPage> {
               tabBackgroundColor: Colors.black87,
               color: Colors.black,
               tabs: const [
-                GButton(
+              /*  GButton(
                   icon: Icons.home,
                   text: 'Home',
                 ),
                 GButton(
                   icon: Icons.task,
                   text: 'task',
-                ),
-                GButton(
+                ),*/
+                  GButton(
                   icon: Icons.phone,
                   text: 'Customer',
                 ),

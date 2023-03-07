@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 
 class PortfolioUpdate extends StatefulWidget {
+  String title;
+  PortfolioUpdate(this.title);
   @override
   State<PortfolioUpdate> createState() => _PortfolioUpdateState();
 }
@@ -15,14 +17,6 @@ class _PortfolioUpdateState extends State<PortfolioUpdate> {
       selectedSubTask = value;
     });
   }
-  var sub_task = [
-    'Visiting unreachable welcome call clients',
-    'Work with the Agents with low welcome calls to improve',
-    'Change a red zone CSAT area to orange',
-    'Attend to Fraud Cases',
-    'Visit at-risk accounts',
-    'Visits FPD/SPDs',
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +31,7 @@ class _PortfolioUpdateState extends State<PortfolioUpdate> {
               hintStyle: TextStyle(color: Colors.grey[800]),
               hintText: "Sub task",
             ),
-            items:sub_task.map((String items) {
+            items:[widget.title].map((String items) {
               return DropdownMenuItem(value: items,child: Text(items),);
             }).toList(), onChanged: onSubTaskChanged),
         SizedBox(height: 10,),

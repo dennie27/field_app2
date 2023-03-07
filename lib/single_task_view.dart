@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:FieldApp/pilot_update.dart';
 import 'package:FieldApp/portfolio_update.dart';
+import 'package:FieldApp/services/region_data.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -64,14 +66,13 @@ class SingleTaskState extends State<SingleTask> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<http.Response>(
-      future: fetchData(),
+    return FutureBuilder<DocumentSnapshot>(
+      future: TaskData().getTaskById(widget.id),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          final data = json.decode(snapshot.data!.body);
           return Scaffold(
               appBar: AppBar(
-                title: Text(widget.title),),
+                title: Text(snapshot.data!['task_title']),),
             body: SingleChildScrollView(
               
               child: Form(
@@ -79,11 +80,11 @@ class SingleTaskState extends State<SingleTask> {
                   margin: EdgeInsets.all(10),
                   child: Column(
                     children: [
-                      if(widget.title == "Portfolio Quality")
-                        PortfolioUpdate(),
-                      if(widget.title == "Pilot Management")
+                      if(snapshot.data!['task_title'] == "Portfolio Quality")
+                        PortfolioUpdate(snapshot.data!['sub_task']),
+                      if(snapshot.data!['task_title'] == "Pilot Management")
                         PilotUpdate(),
-                      if(widget.title == "Collection Drive")
+                      if(snapshot.data!['task_title'] == "Collection Drive")
                         CollectionUpdate(),
 
 

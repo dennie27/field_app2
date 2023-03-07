@@ -3,65 +3,27 @@ import 'package:FieldApp/routing/bottom_nav.dart';
 import 'package:FieldApp/services/auth_services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'services/auth_page.dart';
 
 class Login extends StatefulWidget {
   @override
   _LoginState createState() => _LoginState();
 }
-
-
 class _LoginState extends State<Login> {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.yellow,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(
-            left: 16.0,
-            right: 16.0,
-            bottom: 20.0,
-          ),
+        child: Center(
           child: Column(
-            mainAxisSize: MainAxisSize.max,
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Flexible(
-                      flex: 1,
-                      child: Image.asset(
-                        'assets/logo/sk.png',
-                      ),
-                    ),
-                    Text(
-                      'Authentication',
-                      style: TextStyle(
-                        color: Colors.yellow,
-                        fontSize: 40,
-                      ),
-                    ),
-                  ],
-                ),
+              Image.asset(
+                'assets/logo/sk.png',
               ),
-              FutureBuilder(
-                future: Authentication.initializeFirebase(context: context),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Text('Error initializing Firebase');
-                  } else if (snapshot.connectionState == ConnectionState.done) {
-                    return GoogleSignInButton();
-                  }
-                  return CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                     Colors.red,
-                    ),
-                  );
-                },
-              ),
+              GoogleSignInButton()
             ],
           ),
         ),
@@ -79,10 +41,11 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
 
   @override
   Widget build(BuildContext context) {
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: _isSigningIn
-          ? CircularProgressIndicator(
+          ? const CircularProgressIndicator(
         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
       )
           : OutlinedButton(
@@ -98,22 +61,27 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
           setState(() {
             _isSigningIn = true;
           });
-          User? user =
-          await Authentication.signInWithGoogle(context: context);
-
-
-
-
-
-          // TODO: Add a method call to the Google Sign-In authentication
-
+          User? user = await Authentication.signInWithGoogle(context: context);
           setState(() {
             _isSigningIn = false;
           });
           if (user != null) {
+            String? email;
+              Navigator.of(context).pushReplacement(
+
+                MaterialPageRoute(
+                  builder: (context) => NavPage(
+
+                  ),
+                ),
+              );
+
+
+
+          }else{
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
-                builder: (context) => NavPage(
+                builder: (context) => Login(
 
                 ),
               ),
@@ -125,15 +93,15 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
+            children: const <Widget>[
               Image(
                 image: AssetImage("assets/logo/google.png"),
                 height: 35.0,
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 10),
+                padding: EdgeInsets.only(left: 10),
                 child: Text(
-                  'Sign in with Sun king Email',
+                  'Sign in with Email',
                   style: TextStyle(
                     fontSize: 20,
                     color: Colors.black54,

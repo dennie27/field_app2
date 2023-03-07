@@ -37,6 +37,10 @@ class UserDetail{
     var data = snapshot.data();
     return data['Region'];
   }
+  getUserRegionSnap() async{
+    QuerySnapshot<Object?>  query = await user.where("UID", isEqualTo: currentUser).get();
 
+    return query;
+  }
 
 }

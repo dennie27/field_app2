@@ -43,6 +43,42 @@ class USerCallDetail{
     int allData = querySnapshot.size;
     return allData;
   }
+  Future<int> CountPending() async {
+    // Get docs from collection reference
+    var querySnapshot = await _calling.
+    where('Area', isEqualTo: await UserDetail().getUserArea()).
+    where('Status', isEqualTo: 'Pending').get();
+    // Get data from docs and convert map to List
+    int allData = querySnapshot.size;
+    return allData;
+  }
+  Future<int> CountComplete(String value) async {
+    // Get docs from collection reference
+    var querySnapshot = await _calling.
+    where('Area', isEqualTo: await UserDetail().getUserArea()).
+    where('Status', isEqualTo: 'Complete').
+        where('Task Type',isEqualTo: value).get();
+    // Get data from docs and convert map to List
+    int allData = querySnapshot.size;
+    return allData;
+  }
+  Future<int> CountSucceful(String value) async {
+    // Get docs from collection reference
+    var querySnapshot = await _calling.
+    where('Area', isEqualTo: await UserDetail().getUserArea()).
+    where('successfull', isEqualTo: 'Yes').
+    where('Task Type',isEqualTo: value).get();
+    // Get data from docs and convert map to List
+    int allData = querySnapshot.size;
+    return allData;
+  }
+  Future<String> CompleteRate(String value) async {
+
+    int pending = await CountPending();
+    int complete = await CountComplete(value);
+    double rate  = (complete.toDouble()/(complete.toDouble()+pending.toDouble()))*100;
+    return rate.toStringAsFixed(2);
+  }
     Future getDataByArea() async {
     // Get docs from collection reference
     return await _calling.where('Area', isEqualTo: await UserDetail().getUserArea().snapshot());

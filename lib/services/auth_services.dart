@@ -1,3 +1,4 @@
+import 'package:FieldApp/login.dart';
 import 'package:FieldApp/routing/bottom_nav.dart';
 import 'package:FieldApp/services/auth_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,47 +10,24 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 
 
-class AuthService {
-  signInWithGoogle() async {
-    try {
-      final GoogleSignInAccount? guser = await GoogleSignIn().signIn();
-      if (guser == null) {
-        final GoogleSignInAuthentication gAuth = await guser!.authentication;
 
-        final credential = GoogleAuthProvider.credential(
-          accessToken: gAuth.accessToken,
-          idToken: gAuth.idToken,
-        );
-        UserCredential userCredential =
-            await FirebaseAuth.instance.signInWithCredential(credential);
-        print(userCredential.user);
-        print("dennis");
-        return userCredential.user;
-      } else {
-        print('user login in already');
-      }
-    } catch (e) {
-      final FirebaseAuth _auth = FirebaseAuth.instance;
-      final GoogleSignIn _googleSignIn = GoogleSignIn();
-      Future<void> signOut() async {
-        await _auth.signOut();
-        await _googleSignIn.signOut();
-      }
-
-      print(e);
-    }
-  }
-}
 
 class Authentication {
   static Future<FirebaseApp> initializeFirebase(
       {required BuildContext context}) async {
     FirebaseApp firebaseApp = await Firebase.initializeApp();
     User? user = FirebaseAuth.instance.currentUser;
+    print(user);
     if (user != null) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => NavPage(),
+        ),
+      );
+    }else{
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => Login(),
         ),
       );
     }
@@ -118,5 +96,8 @@ class Authentication {
   static Future<void> signOut() async {
     FirebaseAuth _auth = FirebaseAuth.instance;
     await _auth.signOut();
+
+
+
   }
 }

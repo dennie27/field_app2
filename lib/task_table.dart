@@ -1,6 +1,7 @@
-
 import 'dart:convert';
+import 'package:FieldApp/services/region_data.dart';
 import 'package:FieldApp/single_task_view.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'dart:core';
@@ -98,8 +99,8 @@ class MyTaskViewState extends State<MyTaskView> {
   @override
   void initState(){
     this.getData();
-   this._statusFilter("All");
-   this._searchFilter(widget.title);
+    this._statusFilter("All");
+    this._searchFilter(widget.title);
   }
 
 
@@ -139,9 +140,9 @@ class MyTaskViewState extends State<MyTaskView> {
                   animation: true,
                   animationDuration: 1000,
                   lineHeight: 15.0,
-                  percent: 0.7,
+                  percent:2/2,
                   progressColor: Colors.green,
-                  center: Text("70.0%"),
+                  center: Text(((2/2)*100).toString()+"% completed"),
                 ),
 
                 SizedBox(height: 10,),
@@ -154,9 +155,24 @@ class MyTaskViewState extends State<MyTaskView> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Text("8 Complete",style: TextStyle(color: Colors.green),),
-                    Text("1 Pending",style: TextStyle(color: Colors.orange)),
-                    Text("2 Over Due",style: TextStyle(color: Colors.red)),
+                    StreamBuilder(
+                      stream: TaskData().CountByStatus(widget.title,'Complete').asStream(),
+                      builder: (context, snapshot){
+                        return  Text(snapshot.data.toString()+" Complete",style: TextStyle(color: Colors.orange));
+                      },
+                    ),
+                    StreamBuilder(
+                      stream: TaskData().CountByStatus(widget.title,'Pending').asStream(),
+                      builder: (context, snapshot){
+                        return  Text(snapshot.data.toString()+" Pending",style: TextStyle(color: Colors.red));
+                      },
+                    ),
+                    StreamBuilder(
+                      stream: TaskData().CountTask(widget.title).asStream(),
+                      builder: (context, snapshot){
+                        return  Text(snapshot.data.toString()+" Total",style: TextStyle(color: Colors.green));
+                      },
+                    ),
 
 
 
@@ -171,9 +187,24 @@ class MyTaskViewState extends State<MyTaskView> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Text("10 High",style: TextStyle(color: Colors.green)),
-                    Text("6 Normal",style: TextStyle(color: Colors.orange)),
-                    Text("2 Low",style: TextStyle(color: Colors.red)),
+                    StreamBuilder(
+                      stream: TaskData().CountPriority(widget.title,'high').asStream(),
+                      builder: (context, snapshot){
+                        return  Text(snapshot.data.toString()+" High",style: TextStyle(color: Colors.green));
+                      },
+                    ),
+                    StreamBuilder(
+                      stream: TaskData().CountPriority(widget.title,'normal').asStream(),
+                      builder: (context, snapshot){
+                        return  Text(snapshot.data.toString()+" Normal",style: TextStyle(color: Colors.orange));
+                      },
+                    ),
+                    StreamBuilder(
+                      stream: TaskData().CountPriority(widget.title,'low').asStream(),
+                      builder: (context, snapshot){
+                        return  Text(snapshot.data.toString()+" Low",style: TextStyle(color: Colors.red));
+                      },
+                    ),
 
 
                   ],
@@ -225,82 +256,90 @@ class MyTaskViewState extends State<MyTaskView> {
                 ],
               )
           ),
-          Expanded(
+      const SizedBox(
+        height: 10,
+      ),
 
-            child: _foundUsers.isNotEmpty
-          ? SingleChildScrollView(
-              child: ListView.builder(
-                physics: NeverScrollableScrollPhysics(),
-                scrollDirection: Axis.vertical,
-                shrinkWrap: true,
-                itemCount:_foundUsers.length,
-                itemBuilder: (context, index) {
-                  return InkWell(
-                  onTap: (){
-                    },
-                  child:Row(
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: Colors.blueGrey.shade800,
-                        radius:35,
-                        child: Text("TS"),),
-                      SizedBox(width: 10,),
+          StreamBuilder<QuerySnapshot>(
+              stream:TaskData().getData(widget.title).asStream(),
+    builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if(snapshot.hasData){
+          return Expanded(
+              child:snapshot.hasData
+                  ? ListView.separated(
+                  itemCount: snapshot.data!.size,
+                itemBuilder: (BuildContext context, int index) {
+                  DocumentSnapshot data = snapshot.data!.docs[index];
+                  return
+                    InkWell(
+                      onTap: (){
+                        Navigator.push(
+                            context,
+                            //Navigation
+                            MaterialPageRoute(
+                              builder: (context) => SingleTask(
+                                id:data.id ,
+                                title:data['task_title'] ,),
+                            ));
+                        print(data.id);
+                        ;
+                      },
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: Colors.blueGrey.shade800,
+                            radius:35,
+                            child: Text((index+1).toString()),),
+                          SizedBox(width: 10,),
                       Flexible(
                         child: Container(
                           width: 350,
                           height: 90,
-                          child: InkWell(
-                            onTap: (){
-                              Navigator.push(
-                                  context,
- //Navigation
-                                MaterialPageRoute(
-                                    builder: (context) => SingleTask(
-                                      id:_foundUsers[index]['id'] ,
-                                      title:_foundUsers[index]['name'] ,),
-                                  ));
-                              print(_foundUsers[index]['id'] );
-                              ;
-                            },
-                            child: Card(
-                              elevation: 5,
-
-                              child: Padding(
-                                padding: EdgeInsets.fromLTRB(20.0,10,0,0),
+                          child: Card(
+                            elevation: 5,
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(20.0,10,0,0),
                                 child: Column(
-
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text("Task: ${_foundUsers[index]['name']}"),
-                                    Text("Task :"),
-                                    Text("Priority:${_foundUsers[index]['priority']}"),
-                                    Text("Over due:"),
-                                  ],
-                                ),
-                              ),
-                            ),
+                                    children: [
+                                      Text("Task : ${data['sub_task']}"),
+                                      Text("Priority:${data['priority']}"),
+                                      Text("Due Date:${data['task_end_date']}"),
+                                    ]
+                                )
+                            )
                           ),
-                        ),
+                        )
                       )
-
-                    ],
-                  ),
-                );},
+                        ],
+                      ),
+                    );
+                },
+                separatorBuilder: (BuildContext context, int index) { return  Divider();}):const Text(
+                'No results found',
+                style: TextStyle(fontSize: 15),
+              ));;
+        }else if(snapshot.hasError){
+          return Expanded(child:Text('Error Loding data'));
+        }else{
+          return Column(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(
+                height: 10,
               ),
-            ):const Text(
-              'No results found',
-              style: TextStyle(fontSize: 15),
-            ),
-          ),
+              Text('Loading...'),
+            ],
+          );
+        }
+    }
+          )
         ],
       ),
       /*SingleChildScrollView(
-
         child: Column(
           children: [
-
             ListView.builder(
-
               physics: NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               itemCount: data.length,
@@ -316,8 +355,6 @@ class MyTaskViewState extends State<MyTaskView> {
                   task_with: data[index]['task_with'].toString(),
                   region: data[index]['task_region'].toString(),
                   color: Colors.red,
-
-
                 );
               })*/
     );
@@ -375,14 +412,14 @@ class TaskDetail extends StatelessWidget {
                   Text("Task Priority:", style:TextStyle(fontWeight: FontWeight.bold,fontSize:12),)
                 ],
               ),
-              
+
             ),
             SizedBox(width: 10,),
             Container(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                 Text(task_title, style:TextStyle(fontSize:13),),
+                  Text(task_title, style:TextStyle(fontSize:13),),
                   Text(sub_task,style:TextStyle(fontSize:13)),
                   Text(description,style:TextStyle(fontSize:13)),
                   Text(task_with,style:TextStyle(fontSize:13)),
@@ -391,7 +428,7 @@ class TaskDetail extends StatelessWidget {
                 ],
               ),
             )
-            
+
           ],
         ),
       ),
@@ -399,21 +436,17 @@ class TaskDetail extends StatelessWidget {
   }
 }
 /*Column(
-
 children: [
 Center(child: Text(task_title,
 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),),
 Row(
-
 children: [
-
 style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),),
 SizedBox(width: 15),
 Text(sub_task, style: TextStyle(fontSize: 15,)),
 ],
 ),
 Row(
-
 children: [
 Text("Task Description:",
 style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),),
@@ -427,7 +460,6 @@ overflow: TextOverflow.clip,),)
 ],
 ),
 Row(
-
 children: [
 Text("Task With:",
 style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),),
@@ -436,7 +468,6 @@ Text(task_with, style: TextStyle(fontSize: 15,)),
 ],
 ),
 Row(
-
 children: [
 Text("Region:",
 style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),),
@@ -445,7 +476,6 @@ Text(region, style: TextStyle(fontSize: 15,)),
 ],
 ),
 Row(
-
 children: [
 Text("Area:",
 style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),),
@@ -454,7 +484,6 @@ Text(ahq_name, style: TextStyle(fontSize: 15,)),
 ],
 ),
 Row(
-
 children: [
 Text("Priority:",
 style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),),
@@ -467,10 +496,7 @@ SizedBox(width: 5),
 Text(status, style: TextStyle(fontSize: 15,)),
 ],
 ),
-
-
 Row(
-
 children: [
 Text("Date start:",
 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
@@ -501,7 +527,5 @@ content: Text(sub_task.toString()+" Saved successfully"),
 },
 child: Text("Update Task")),
 SizedBox(height: 5),
-
 ],
 )*/
-

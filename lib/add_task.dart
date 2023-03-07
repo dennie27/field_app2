@@ -1,9 +1,9 @@
 
 import 'dart:core';
-import 'package:FieldApp/pending_task.dart';
+import 'package:FieldApp/widget/drop_down.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:FieldApp/routing/bottom_nav.dart';
 import 'package:FieldApp/utils/themes/theme.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:multiselect_formfield/multiselect_formfield.dart';
@@ -17,6 +17,7 @@ class AddTask extends StatefulWidget {
 }
 
 class AddTaskState extends State<AddTask> {
+
   var currentUser = FirebaseAuth.instance.currentUser;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   String? priority;
@@ -89,6 +90,7 @@ class AddTaskState extends State<AddTask> {
     'Pilot/Process Management': pilot,
     'Customer Management': customer,
   };
+
   onTaskChanged(String? value) {
     if (value != selectedTask) selectedSubTask = null;
     setState(() {
@@ -127,6 +129,14 @@ class AddTaskState extends State<AddTask> {
     'RBM',
     'CA',
   ];
+
+  Future<int> getAgData() async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    QuerySnapshot query = await firestore.collection('TZ_agent_welcome_call')
+        .get();
+    return query.size;
+  }
+
   var users = [
     'Dennis',
     'Jackson',
@@ -166,19 +176,17 @@ class AddTaskState extends State<AddTask> {
     _areaResult = '';
     priority = '';
   }
-
   formPost() async {
-    print(selectedSubTask);
-    CollectionReference users = firestore.collection("task");
+    CollectionReference task = firestore.collection("task");
     var currentUser = FirebaseAuth.instance.currentUser;
-    await users.add({
+    await task.add({
       "task_title": selectedTask,
       "User UID": currentUser?.uid,
       "sub_task": selectedSubTask,
       "task_description": _text.text.toString(),
       "process_audit":_taskdetailtext.text.toString(),
-      "task_start_date": "2023-01-15",
-      "task_end_date": "2023-01-17",
+      "task_start_date":  DateTime.now(),
+      "task_end_date": DateTime.now(),
       "task_status": "Pending",
       "task_with": agentselected,
       "task_area": areaselected.toString(),
@@ -192,7 +200,6 @@ class AddTaskState extends State<AddTask> {
       "timestamp": DateTime.now(),
       "is_approved": "pending"
     }
-
     );
     Navigator.push(
       context,
@@ -253,6 +260,7 @@ class AddTaskState extends State<AddTask> {
                   value: selectedTask,
                   decoration: InputDecoration(
                     filled: true,
+                    fillColor: Colors.white,
                     labelText: "Task Title",
                     border: OutlineInputBorder(),
                     hintStyle: TextStyle(color: Colors.white),
@@ -261,7 +269,7 @@ class AddTaskState extends State<AddTask> {
                   items: dataset.keys.map((e) {
                     return DropdownMenuItem<String?>(
                       value: e,
-                      child: Text('$e'),
+                      child: Text('$e', overflow: TextOverflow.ellipsis,),
                     );
                   }).toList(),
                   onChanged: onTaskChanged,
@@ -269,10 +277,12 @@ class AddTaskState extends State<AddTask> {
                 SizedBox(
                   height: 10,
                 ),
+
                 DropdownButtonFormField<String?>(
                     value: selectedSubTask,
                     decoration: InputDecoration(
                       filled: true,
+                      fillColor: Colors.white,
                       labelText: "Sub Task",
                       border: OutlineInputBorder(),
                       hintStyle: TextStyle(color: Colors.grey[800]),
@@ -281,7 +291,7 @@ class AddTaskState extends State<AddTask> {
                     items: (dataset[selectedTask] ?? []).map((e) {
                       return DropdownMenuItem<String?>(
                         value: e,
-                        child: Text('$e'),
+                        child: Text('$e', overflow: TextOverflow.ellipsis,),
                       );
                     }).toList(),
                     onChanged: (val) {
@@ -289,6 +299,59 @@ class AddTaskState extends State<AddTask> {
                         selectedSubTask = val!;
                       });
                     }),
+                SizedBox(
+                  height: 10,
+                ),
+                StreamBuilder(
+                    stream:firestore.collection("Users").where('UID',isEqualTo: currentUser!.uid).get().asStream(),
+                    builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                      List<String> region =  List.generate(snapshot.data!.size,
+                              (index) {
+                            DocumentSnapshot data = snapshot.data!.docs[index];
+                            return data['Region'].toString();
+                          }).toSet().toList();
+                      if (snapshot.hasData) {
+                        return AppDropDown(
+                          label: 'Region',
+                          hint: 'Select Region',
+                          items:region?? [],
+
+                          onChanged:  (String value) {
+                          setState(() {
+                            regionselected = value;
+                          });
+                        },
+                        );
+                      }else{
+                       return  CircularProgressIndicator();
+                      }
+                    }
+                ),
+                SizedBox(height: 10,),
+                  StreamBuilder(
+                      stream: firestore.collection("TZ_agent_welcome_call").where('Region',isEqualTo:  regionselected).get().asStream(),
+                      builder: (BuildContext context, snapshot) {
+                        if(snapshot.hasData){
+
+                          List<String> area =  List.generate(snapshot.data!.size,
+                                  (index) {
+                                DocumentSnapshot data = snapshot.data!.docs[index];
+                                return data['Area'].toString();
+                              }).toSet().toList();
+                          return AppDropDown(
+                            label: 'Area',
+                            hint:'Select Area',
+                            items: area??[],
+                            onChanged: (String value) {
+                              setState(() {
+                                areaselected = value;
+                              });
+                            },
+                          );
+                        }return CircularProgressIndicator();
+
+                      }
+                  ),
                 SizedBox(
                   height: 10,
                 ),
@@ -306,26 +369,17 @@ class AddTaskState extends State<AddTask> {
                     selectedSubTask == 'Visiting of issues raised' ||
                     selectedSubTask ==
                         'Repossession of customers needing repossession')
-                  DropdownButtonFormField(
-                      value: customerselected,
-                      decoration: InputDecoration(
-                        filled: true,
-                        labelText: "Select the customer to visit",
-                        border: OutlineInputBorder(),
-                        hintStyle: TextStyle(color: Colors.grey[800]),
-                        hintText: "Castomer name",
-                      ),
-                      items: customerList.map((String items) {
-                        return DropdownMenuItem(
-                          value: items,
-                          child: Text(items),
-                        );
-                      }).toList(),
-                      onChanged: (val) {
-                        setState(() {
-                          customerselected = val!;
-                        });
-                      }),
+                  AppDropDown(
+                    label: 'Customer name',
+                    hint: 'Select the customer to visit',
+                    items: customerList,
+                    onChanged: (String value) {
+                      setState(() {
+                        customerselected = value;
+                      });
+                    }
+                    ,),
+
                 SizedBox(
                   height: 10,
                 ),
@@ -334,47 +388,44 @@ class AddTaskState extends State<AddTask> {
                     selectedSubTask ==
                         'Field Visits with low-performing Agents in Collection Score' ||
                     selectedSubTask == 'Work with restricted Agents')
-                  DropdownButtonFormField(
-                      value: agentselected,
-                      decoration: InputDecoration(
-                        filled: true,
-                        labelText: "Who will you work with",
-                        border: OutlineInputBorder(),
-                        hintStyle: TextStyle(color: Colors.grey[800]),
-                        hintText: "Agent name",
-                      ),
-                      items: users.map((String items) {
-                        return DropdownMenuItem(
-                          value: items,
-                          child: Text(items),
-                        );
-                      }).toList(),
-                      onChanged: (val) {
-                        setState(() {
-                          agentselected = val!;
-                        });
-                      }),
+                  StreamBuilder(
+                      stream:firestore.collection("TZ_agent_welcome_call").where('Area',isEqualTo: areaselected).get().asStream(),
+                      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+    List<String> agent = List.generate(snapshot.data!.size,
+    (index) {
+    DocumentSnapshot data = snapshot.data!.docs[index];
+    var agent_data = data['Agent'].toString().toString();
+    return agent_data;
+    }).toSet().toList();
+    if (snapshot.hasData) {
+
+    AppDropDown(
+      hint:'Who will you work with',
+      label: 'Who will you work with',
+      items: agent,
+        onChanged: (String value) {
+          setState(() {
+            agentselected = value;
+          });
+        }
+    );
+
+    }
+    else{
+    return CircularProgressIndicator();
+    }return CircularProgressIndicator();
+                      }
+                  ),
                 if (selectedSubTask ==
                         'Change a red zone CSAT area to orange' ||
                     selectedSubTask == 'Attend to Fraud Cases')
-                  DropdownButtonFormField(
-                      value: caseselected,
-                      decoration: InputDecoration(
-                        filled: true,
-                        labelText: "which case you will attend",
-                        border: OutlineInputBorder(),
-                        hintStyle: TextStyle(color: Colors.grey[800]),
-                        hintText: "case name",
-                      ),
-                      items: customerCase.map((String items) {
-                        return DropdownMenuItem(
-                          value: items,
-                          child: Text(items),
-                        );
-                      }).toList(),
-                      onChanged: (val) {
+                  AppDropDown(
+                    label: 'case name',
+                    hint: 'which case you will attend',
+                    items: customerCase,
+                      onChanged: (String value) {
                         setState(() {
-                          caseselected = val!;
+                          caseselected = value;
                         });
                       }),
                 if (selectedSubTask == 'Conduct the process audit (Name the process being audited)' ||
@@ -398,51 +449,9 @@ class AddTaskState extends State<AddTask> {
                               BorderSide(color: Colors.black12, width: 1.0),
                         ),
                       )),
-                SizedBox(
-                  height: 10,
-                ),
-                DropdownButtonFormField(
-                    value: regionselected,
-                    decoration: InputDecoration(
-                      filled: true,
-                      labelText: "Region",
-                      border: OutlineInputBorder(),
-                      hintStyle: TextStyle(color: Colors.grey[800]),
-                      hintText: "Name",
-                    ),
-                    items: region.map((String items) {
-                      return DropdownMenuItem(
-                        value: items,
-                        child: Text(items),
-                      );
-                    }).toList(),
-                    onChanged: (val) {
-                      setState(() {
-                        regionselected = val!;
-                      });
-                    }),
-                SizedBox(
-                  height: 10,
-                ),
-                DropdownButtonFormField(
-                    decoration: InputDecoration(
-                      filled: true,
-                      labelText: "Area",
-                      border: OutlineInputBorder(),
-                      hintStyle: TextStyle(color: Colors.grey[800]),
-                      hintText: "Name",
-                    ),
-                    items: area.map((String items) {
-                      return DropdownMenuItem(
-                        value: items,
-                        child: Text(items),
-                      );
-                    }).toList(),
-                    onChanged: (val) {
-                      setState(() {
-                        areaselected = val!;
-                      });
-                    }),
+
+
+
                 SizedBox(
                   height: 10,
                 ),

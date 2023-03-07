@@ -1,16 +1,11 @@
-import 'dart:convert';
 import 'dart:core';
-import 'package:FieldApp/customer_profile.dart';
-import 'package:FieldApp/pending_calls.dart';
+import 'package:FieldApp/area/pending_calls.dart';
 import 'package:FieldApp/services/calls_detail.dart';
-import 'package:FieldApp/services/user_detail.dart';
 import 'package:FieldApp/utils/themes/theme.dart';
-import 'package:call_log/call_log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:multiselect_formfield/multiselect_formfield.dart';
-import 'package:http/http.dart' as http;
 
+import '../services/user_detail.dart';
 import 'complete_calls.dart';
 
 class Customer extends StatefulWidget {
@@ -151,15 +146,36 @@ class CustomerState extends State<Customer> {
       _foundUsers = results;
     });
   }
-
+  bool newuser = true;
+  void userArea(){
+    UserDetail().getUserArea().then((value){
+      setState(() {
+        newuser = false;
+      });
+    });
+  }
   initState() {
     // at the beginning, all users are shown
     _foundUsers = _allUsers;
+    userArea();
+    print(newuser);
     super.initState();
   }
 
   Widget build(BuildContext context) {
-    return DefaultTabController(
+
+    return newuser?Container(
+
+      child:
+      Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text("Hi! Welcome"),
+          Text("You are new user please contact the admin")
+        ],
+      )
+      ,
+    ):DefaultTabController(
       length: 2,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -174,18 +190,22 @@ class CustomerState extends State<Customer> {
               RowData(
                 value: 0,
                 label: 'Call Made',
+                future: USerCallDetail().CountComplete('Call'),
               ),
               RowData(
                 label: 'Calls Pending',
                 value: 0,
+                future: USerCallDetail().CountPending(),
               ),
               RowData(
                 value: 0,
                 label: 'Complete rate',
+                future: USerCallDetail().CompleteRate('Call'),
               ),
               RowData(
                 value: 32,
                 label: 'Success Calls',
+                future: USerCallDetail().CountSucceful('Call'),
               )
             ],
           ),
@@ -199,18 +219,22 @@ class CustomerState extends State<Customer> {
               RowData(
                 value: 20,
                 label: 'Visit Made',
+                future: USerCallDetail().CountComplete('Visit'),
               ),
               RowData(
                 value: 40,
                 label: 'Visit Pending',
+                future: USerCallDetail().CountPending(),
               ),
               RowData(
                 value: 35,
                 label: 'Complete rate',
+                future: USerCallDetail().CompleteRate('Visit'),
               ),
               RowData(
                 value: 20,
                 label: 'Success Visit',
+                future: USerCallDetail().CountSucceful('Visit'),
               )
             ],
           ),
@@ -267,14 +291,15 @@ class KpiTittle extends StatelessWidget {
 class RowData extends StatelessWidget {
   final int value;
   final String label;
+  final future;
 
-  const RowData({Key? key, required this.value, required this.label})
+  const RowData({Key? key, required this.value, required this.label,required this.future})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: FutureBuilder<dynamic>(
-          future: USerCallDetail().CountDataByArea(),
+          future:future,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return InkWell(
@@ -306,11 +331,11 @@ class RowData extends StatelessWidget {
                     width: 60,
                     child: Column(
                       children: [
-                        Text('00',
+                        Text('0',
                             style: TextStyle(
                               fontSize: 15,
                             )),
-                        Text('error', style: TextStyle(fontSize: 9))
+                        Text(label, style: TextStyle(fontSize: 9))
                       ],
                     ),
                   ),

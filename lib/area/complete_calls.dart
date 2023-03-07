@@ -1,10 +1,12 @@
 // main.dart
+import 'package:FieldApp/services/user_detail.dart';
 import 'package:call_log/call_log.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'customer_profile.dart';
+import 'customer_vist.dart';
 
 class CompleteCalls extends StatefulWidget {
 
@@ -13,6 +15,7 @@ class CompleteCalls extends StatefulWidget {
   @override
   CompleteCallsState createState() => CompleteCallsState();
 }
+
 class CompleteCallsState extends State<CompleteCalls> {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   var currentUser = FirebaseAuth.instance.currentUser;
@@ -25,7 +28,19 @@ class CompleteCallsState extends State<CompleteCalls> {
   var duration1update;
   var accidupdate;
   var simnameupdate;
-  void callLogs() async {
+  String? Status;
+  String? Area;
+
+
+  void userArea(){
+    UserDetail().getUserArea().then((value){
+      setState(() {
+        Area = value;
+      });
+    });
+}
+  void callLogs(String docid) async {
+    String _docid = docid;
 
     Iterable<CallLogEntry> entries = await CallLog.get();
 
@@ -38,16 +53,32 @@ class CompleteCallsState extends State<CompleteCalls> {
     duration1update = entries.elementAt(0).duration;
     accidupdate = entries.elementAt(0).phoneAccountId;
     simnameupdate = entries.elementAt(0).simDisplayName;
-    if(duration1update>30) {
-      CollectionReference users = firestore.collection("calling");
-      await users.add({
+
+    if (duration1update >= 30) {
+      CollectionReference newCalling = firestore.collection("new_calling");
+      await newCalling.doc(_docid).update({
         'Duration': duration1update,
-        'Lastname': 'Juma',
         "User UID": currentUser?.uid,
-        "":"",
+        "date": DateTime.now(),
+        "Task Type": "Call",
+        "Status": "Complete",
+        "Promise date": dateInputController.text
       });
-    }else{
-      print("call duration is less than required seconds");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Your call has been record successfull'),
+        ),
+      );
+      return Navigator.of(context, rootNavigator: true).pop();
+
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('the call was not recorded as its not meet required duretion'),
+        ),
+      );
+      return Navigator.of(context, rootNavigator: true).pop();
+
     }
   }
   String? feedbackselected;
@@ -58,8 +89,10 @@ class CompleteCallsState extends State<CompleteCalls> {
     'EO take and resale',
     'not the owner',
   ];
-  _callNumber(String phoneNumber) async {
+  TextEditingController dateInputController = TextEditingController();
+  _callNumber(String phoneNumber, String docid) async {
     String number = phoneNumber;
+    String _docid = docid;
     await FlutterPhoneDirectCaller.callNumber(number);
     showDialog(
         context: context,
@@ -67,57 +100,76 @@ class CompleteCallsState extends State<CompleteCalls> {
           return AlertDialog(
               title: Text('Customer Feedback'),
               content: Container(
-                  height: 200,
-                  child: Column(
-                      children: <Widget>[
-                        DropdownButtonFormField(
-                            decoration: InputDecoration(
-                              filled: true,
-                              labelText: "feedback",
-                              border: OutlineInputBorder(),
-                              hintStyle: TextStyle(color: Colors.grey[800]),
-                              hintText: "Name",
-                            ),
-                            items: feedback.map((String items) {
-                              return DropdownMenuItem(
-                                value: items,
-                                child: Text(items),
-                              );
-                            }).toList(),
-                            onChanged: (val) {
-                              setState(() {
-                                feedbackselected = val!;
-                              });
-                            }),
-                        SizedBox(
-                          height: 20,
+                  height: 300,
+                  child: Column(children: <Widget>[
+                    DropdownButtonFormField(
+                        isExpanded: true,
+                        decoration: InputDecoration(
+                          filled: true,
+                          labelText: "feedback",
+                          border: OutlineInputBorder(),
+                          hintStyle: TextStyle(color: Colors.grey[800]),
+                          hintText: "Name",
                         ),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text('Cancel'),
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  callLogs();
-                                },
-                                child: Text('Submit'),
-                              ),
-                            ]
+                        items: feedback.map((String items) {
+                          return DropdownMenuItem(
+                            value: items,
+                            child: Text(items,overflow: TextOverflow.clip, maxLines: 2,),
+                          );
+                        }).toList(),
+                        onChanged: (val) {
+                          setState(() {
+                            feedbackselected = val!;
+                          });
+                        }),
+                    SizedBox(height: 10,),
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        hintText: 'Date',
+                        border: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.blue, width: 1)),
+                        focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.blue, width: 1)),
+                        enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.blue, width: 1)),
+                      ),
+                      controller: dateInputController,
+                      readOnly: true,
+                      onTap: () async {
+                        DateTime? pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime.now().add(Duration(days: 5)));
 
-                        )
-                      ]
-                  )
-              )
-          );
-        }
-    );
-
+                        if (pickedDate != null) {
+                          dateInputController.text =pickedDate.toString();
+                        }
+                      },
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text('Cancel'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              callLogs(_docid);
+                            },
+                            child: Text('Submit'),
+                          ),
+                        ])
+                  ])));
+        });
   }
+
   bool isDescending = false;
 
   final List<Map<String, dynamic>> _allUsers = [
@@ -140,6 +192,8 @@ class CompleteCallsState extends State<CompleteCalls> {
     // at the beginning, all users are shown
     _foundUsers = _allUsers;
     super.initState();
+    Status = "Compete";
+    userArea();
   }
 
   // This function is called whenever the text field changes
@@ -161,6 +215,7 @@ class CompleteCallsState extends State<CompleteCalls> {
       _foundUsers = results;
     });
   }
+
   void _statusFilter(String _status) {
     List<Map<String, dynamic>> results = [];
     switch(_status) {
@@ -213,24 +268,24 @@ class CompleteCallsState extends State<CompleteCalls> {
                 PopupMenuButton(
                 onSelected:(reslust) =>_statusFilter(reslust),
                   itemBuilder: (context) => [
-                    PopupMenuItem(
+                    const PopupMenuItem(
                         child: Text("All"),
                         value: "All"
                     ),
-                    PopupMenuItem(
+                    const PopupMenuItem(
                         child: Text("Complete"),
                         value: "Complete"
                     ),
-                    PopupMenuItem(
+                    const PopupMenuItem(
                         child: Text("Pending"),
                         value: "Pending"
                     ),
-                    PopupMenuItem(
+                    const PopupMenuItem(
                         child: Text("Over Due"),
                         value: "Over due"
                     ),
                   ],
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.filter_list_alt,color: Colors.yellow
                   ),
 
@@ -248,18 +303,18 @@ class CompleteCallsState extends State<CompleteCalls> {
               height: 10,
             ),
             StreamBuilder(
-                stream: firestore.collection("new_calling").where("Status",isEqualTo: "Complete").snapshots(),
+                stream: firestore.collection("new_calling").where("Area",isEqualTo:  Area).where('Status', isEqualTo: 'Complete' ).snapshots(),
                 builder:(BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot){
                   if (!snapshot.hasData) {
                     return Column(
                       children: [
-                        CircularProgressIndicator(),
-                        SizedBox(height: 10,),
-                        Text('Loading...'),
+                        const CircularProgressIndicator(),
+                        const SizedBox(height: 10,),
+                        const Text('Loading...'),
                       ],
                     );
                   }return Expanded(
-                    child: snapshot.hasData
+                    child: snapshot.data!.docs.length>0
                         ? ListView.separated(
                       itemCount: snapshot.data!.docs.length,
                       itemBuilder:(BuildContext context, int index){
@@ -284,9 +339,9 @@ class CompleteCallsState extends State<CompleteCalls> {
                               CircleAvatar(
                                 backgroundColor: Colors.blueGrey.shade800,
                                 radius: 20,
-                                child: Text("1"),
+                                child: const Text("1"),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 width: 2,
                               ),
                               Flexible(
@@ -295,7 +350,7 @@ class CompleteCallsState extends State<CompleteCalls> {
                                   child: Card(
                                     elevation: 5,
                                     child: Padding(
-                                      padding: EdgeInsets.fromLTRB(5.0, 5, 0, 0),
+                                      padding: const EdgeInsets.fromLTRB(5.0, 5, 0, 0),
                                       child: Row(
                                         mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
@@ -306,6 +361,8 @@ class CompleteCallsState extends State<CompleteCalls> {
                                             children: [
                                               Text(data['Customer Name']),
                                               Text(data['Account Number'].toString()),
+                                              Text('Task: '+data['Task Type']),
+
                                             ],
                                           ),
                                           Row(
@@ -313,13 +370,22 @@ class CompleteCallsState extends State<CompleteCalls> {
 
                                               IconButton(
                                                   onPressed: () {
-                                                    _callNumber(data['Customer Phone Number']);
+                                                    _callNumber(
+                                                        data[
+                                                        'Customer Phone Number'],
+                                                        data.id);
                                                   },
-                                                  icon: Icon(Icons.phone)),
+                                                  icon: const Icon(Icons.phone)),
                                               IconButton(
                                                   onPressed: () {
+                                                    Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              CustomerVisit(id: data.id),
+                                                        ));
                                                   },
-                                                  icon: Icon(
+                                                  icon: const Icon(
                                                       Icons.location_on_outlined))
                                             ],
                                           )
@@ -332,7 +398,7 @@ class CompleteCallsState extends State<CompleteCalls> {
                             ],
                           ),
                         );
-                      }, separatorBuilder: (BuildContext context, int index) => Divider(),)
+                      }, separatorBuilder: (BuildContext context, int index) => const Divider(),)
                         : const Text(
                       'No results found',
                       style: TextStyle(fontSize: 15),

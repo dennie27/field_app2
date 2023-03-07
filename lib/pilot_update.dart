@@ -97,20 +97,18 @@ class _CollectionUpdateState extends State<CollectionUpdate> {
               return DropdownMenuItem(value: items,child: Text(items),);
             }).toList(), onChanged: onSubTaskChanged),
         SizedBox(height: 10,),
-        if(selectedSubTask == 'Field Visits with low-performing Agents in Collection Score')
+        if(selectedSubTask == 'Conduct the process audit')
           FieldVisit(),
-        if(selectedSubTask == 'Visits Tampering Home 400')
+        if(selectedSubTask == 'Conduct a pilot audit')
           TVcostomers(),
-        if(selectedSubTask == 'Work with restricted Agents')
+        if(selectedSubTask == 'Testing the GPS accuracy of units submitted')
           Work(),
-        if(selectedSubTask == 'Repossession of accounts above 180')
+        if(selectedSubTask == 'Reselling of repossessed units')
           Repo(),
-        if(selectedSubTask == 'Calling of special book')
+        if(selectedSubTask == 'Repossessing qualified units for Repo and Resale')
           Campaign(),
-        if(selectedSubTask == 'Sending SMS to clients')
+        if(selectedSubTask == 'Increase the Kazi Visit Percentage')
           Campaign(),
-        if(selectedSubTask == 'Table Meeting/ Collection Sensitization Training')
-          TableMeeting(),
       ],
     );
   }
