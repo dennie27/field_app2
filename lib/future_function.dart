@@ -1,56 +1,121 @@
-import 'dart:convert';
-import 'dart:io';
-import 'package:http/http.dart' as http;
-
+import 'package:FieldApp/widget/drop_down.dart';
 import 'package:flutter/material.dart';
-class BaseData extends StatefulWidget{
-@override
-State<BaseData> createState() => _BaseDataState();
+import 'package:url_launcher/url_launcher.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+
+class BaseData extends StatefulWidget {
+  @override
+  _BaseDataState createState() => _BaseDataState();
 }
 
 class _BaseDataState extends State<BaseData> {
-  void getData() async {
-
-    String username = 'dennis+angaza@greenlightplanet.com';
-    String password = 'sunking';
-    String basicAuth =
-        'Basic ${base64.encode(utf8.encode('$username:$password'))}';
-    var headers = {
-      "Accept": "application/json",
-      "method":"GET",
-      "Authorization": '${basicAuth}',
-      "account_qid" : "AC5156322",
-    };
-    final httpPackageUrl = Uri.https('payg.angazadesign.com', '/data/clients',{"account_qid" : "AC5156322"},
-      );
-    var uri = Uri.parse('https://payg.angazadesign.com/data/clients/CL7199608');
-    var response = await http.get(uri, headers: headers);
-    final httpPackageInfo = await http.read(httpPackageUrl,headers: headers);
-    final info =  await http.read(httpPackageUrl,headers: headers);
-    var data = json.decode(response.body);
-    var dd = json.decode(response.body);
-    print(data);
-    //print(httpPackageUrl);
-   // print(httpPackageInfo);
-  }
-  initState() {
-    // at the beginning, all users are shown
-    //data = items;
-    print("object");
-    getData();
-
-    super.initState();
-  }
+  TextEditingController feedbackController = TextEditingController();
+  bool isCalling = false;
+  String? reasonselected;
+  String? phoneselected;
+  var phone = ['123456890', '2345678905', '3456789012'];
+  var feedback = [
+    'Customer will pay',
+    'system will be repossessed',
+    'at the shop for replacement',
+    'Product is with EO',
+    'not the owner',
+  ];
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-      title: Text("Dennis")
-        ),
-    body: Column(
+      body: Container(
+        child: Center(
+          child: ElevatedButton(
+            onPressed: () {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return SingleChildScrollView(
+                      child: AlertDialog(
+                        title: Text('Phone Call'),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            AppDropDown(
+                                label: 'Phone Number',
+                                hint: 'Select Phone Number',
+                                items: phone,
+                                onChanged: (String value) {
+                                  setState(() {
+                                    phoneselected = value;
+                                    launch('tel:$value');
+                                  });
+                                }),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            AppDropDown(
+                                label: 'Reason for not pay',
+                                hint: 'select a reason',
+                                items: feedback,
+                                onChanged: (String value) {
+                                  setState(() {
+                                    reasonselected = value;
+                                    print(reasonselected);
+                                  });
+                                }),
+                            SizedBox(height: 10),
+                            if (reasonselected == 'Customer will pay')
+                              Text("date"),
+                            TextField(
+                              maxLines: 4,
+                              controller: feedbackController,
+                              decoration: InputDecoration(
+                                labelText: 'Additional Feedback',
+                              ),
+                            ),
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                            child: Text('Close'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          isCalling
+                              ? CircularProgressIndicator()
+                              : TextButton(
+                                  child: Text('Call'),
+                                  onPressed: () async {
+                                    // Start recording feedback
+                                    setState(() {
+                                      isCalling = true;
+                                    });
 
-    )
+                                    // Wait for 3 seconds to simulate a phone call
+                                    await Future.delayed(Duration(seconds: 3));
+
+                                    // Save feedback to a database
+                                    String feedback = feedbackController.text;
+                                    print('Recorded Feedback: $feedback');
+
+                                    // End recording feedback
+                                    setState(() {
+                                      isCalling = false;
+                                    });
+
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                        ],
+                      ),
+                    );
+                  });
+            },
+            child: Text("DEnnis"),
+          ),
+        ),
+      ),
     );
   }
 }

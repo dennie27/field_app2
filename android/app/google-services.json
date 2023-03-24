@@ -15,11 +15,19 @@
       },
       "oauth_client": [
         {
-          "client_id": "866219640103-fmukpg924bl2camph279o7pbgirthn33.apps.googleusercontent.com",
+          "client_id": "866219640103-9psee4ji1771ehl9bhdep7h4fe01tqnh.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.sunking.field_app",
-            "certificate_hash": "27b11b9da52d7a5e4725b38d23ca7d27106cbb4c"
+            "certificate_hash": "ec3d763f535e03df64604867a65f9fbc90fa1a94"
+          }
+        },
+        {
+          "client_id": "866219640103-gmivqlbtkf2edubs9da032mge6tog7dr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sunking.field_app",
+            "certificate_hash": "7110de6a4f309c99bfdd4786a9c795099f4efb28"
           }
         },
         {

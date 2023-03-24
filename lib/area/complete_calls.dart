@@ -1,12 +1,17 @@
 // main.dart
+import 'dart:convert';
+
 import 'package:FieldApp/services/user_detail.dart';
 import 'package:call_log/call_log.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
+import 'package:intl/intl.dart';
+import '../widget/drop_down.dart';
 import 'customer_profile.dart';
 import 'customer_vist.dart';
+import 'package:http/http.dart' as http;
 
 class CompleteCalls extends StatefulWidget {
 
@@ -30,6 +35,8 @@ class CompleteCallsState extends State<CompleteCalls> {
   var simnameupdate;
   String? Status;
   String? Area;
+  String? phoneselected;
+  TextEditingController feedbackController = TextEditingController();
 
 
   void userArea(){
@@ -39,11 +46,60 @@ class CompleteCallsState extends State<CompleteCalls> {
       });
     });
 }
-  void callLogs(String docid) async {
+  getPhoto(String client) async {
+    String username = 'dennis+angaza@greenlightplanet.com';
+    String password = 'sunking';
+    String basicAuth =
+        'Basic ${base64.encode(utf8.encode('$username:$password'))}';
+    var headers = {
+      "Accept": "application/json",
+      "method": "GET",
+      "Authorization": '${basicAuth}',
+      "account_qid": "AC5156322",
+    };
+    var uri = Uri.parse('https://payg.angazadesign.com/data/clients/$client');
+    var response = await http.get(uri, headers: headers);
+    var body = json.decode(response.body);
+    var attribute = body["attribute_values"];
+    List<Map<String, dynamic>> attributes =
+    attribute.cast<Map<String, dynamic>>();
+    String photo = attributes
+        .firstWhere((attr) => attr['name'] == 'Client Photo')['value'];
+    return photo;
+  }
+  getAccountData(String angazaid) async {
+
+    String username = 'dennis+angaza@greenlightplanet.com';
+    String password = 'sunking';
+    String basicAuth =
+        'Basic ${base64.encode(utf8.encode('$username:$password'))}';
+    var headers = {
+      "Accept": "application/json",
+      "method":"GET",
+      "Authorization": '${basicAuth}',
+      "account_qid" : "AC5156322",
+    };
+    final httpPackageUrl = Uri.https('payg.angazadesign.com', '/data/clients',{"account_qid" : "AC5156322"},
+    );
+    var uri = Uri.parse('https://payg.angazadesign.com/data/accounts/$angazaid');
+    var response = await http.get(uri, headers: headers);
+    var data = response.body;
+    int daysBetween(DateTime from, DateTime to) {
+      from = DateTime(from.year, from.month, from.day);
+      to = DateTime(to.year, to.month, to.day);
+      return (to.difference(from).inHours / 24).round();
+    }
+    final birthday = DateTime(1967, 10, 12);
+    final date2 = DateTime.now();
+    var dd = json.decode(response.body);
+    //var date = DateTime.parse(data["payment_due_date"]);
+    //final daysdisable = daysBetween(date, date2);
+    return data;
+  }
+  void callLogs(String docid,String feedback,String angaza) async {
     String _docid = docid;
 
     Iterable<CallLogEntry> entries = await CallLog.get();
-
     fnumberupdate = entries.elementAt(0).formattedNumber;
     cmnumberupdate = entries.elementAt(0).cachedMatchedNumber;
     number1update = entries.elementAt(0).number;
@@ -54,16 +110,30 @@ class CompleteCallsState extends State<CompleteCalls> {
     accidupdate = entries.elementAt(0).phoneAccountId;
     simnameupdate = entries.elementAt(0).simDisplayName;
 
+
     if (duration1update >= 30) {
       CollectionReference newCalling = firestore.collection("new_calling");
       await newCalling.doc(_docid).update({
         'Duration': duration1update,
+        'ACE Name': currentUser?.displayName,
         "User UID": currentUser?.uid,
-        "date": DateTime.now(),
+        "date": DateFormat('yyyy-MM-dd – kk:mm').format(DateTime.now()),
         "Task Type": "Call",
         "Status": "Complete",
-        "Promise date": dateInputController.text
+        "Promise date": dateInputController.text,
       });
+      CollectionReference feedBack = firestore.collection("FeedBack");
+      await feedBack.add({
+        "Angaza ID":angaza,
+        "Duration": duration1update,
+        "User UID": currentUser?.uid,
+        "date": DateFormat('yyyy-MM-dd – kk:mm').format(DateTime.now()),
+        "Task Type": "Call",
+        "Status": "Complete",
+        "Promise date": dateInputController.text,
+        "Feedback":feedback
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Your call has been record successfull'),
@@ -73,6 +143,7 @@ class CompleteCallsState extends State<CompleteCalls> {
 
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
+
         SnackBar(
           content: Text('the call was not recorded as its not meet required duretion'),
         ),
@@ -83,90 +154,112 @@ class CompleteCallsState extends State<CompleteCalls> {
   }
   String? feedbackselected;
   var feedback = [
-    'Customer will bay',
-    'system will be repossessed',
-    'at the shop for replacement',
-    'EO take and resale',
-    'not the owner',
+    'Customer will pay',
+    'System will be repossessed',
+    'At the shop for replacement',
+    'Product is with EO',
+    'Not the owner',
   ];
   TextEditingController dateInputController = TextEditingController();
-  _callNumber(String phoneNumber, String docid) async {
-    String number = phoneNumber;
+  _callNumber(String phoneNumber, String docid,String angaza) async {
+    List<String> phone = phoneNumber.split(',');
+    phone  = phone.toSet().toList();
+
+
     String _docid = docid;
-    await FlutterPhoneDirectCaller.callNumber(number);
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return AlertDialog(
-              title: Text('Customer Feedback'),
-              content: Container(
-                  height: 300,
-                  child: Column(children: <Widget>[
-                    DropdownButtonFormField(
-                        isExpanded: true,
+          return SingleChildScrollView(
+            child: AlertDialog(
+                title: Text('Customer Feedback'),
+                content: Container(
+                    height: 400,
+                    child: Column(children: <Widget>[
+                      AppDropDown(
+                          label: 'Phone Number',
+                          hint: 'Select Phone Number',
+                          items: phone,
+                          onChanged: (String value) async {
+                            setState((){
+                              phoneselected = value;
+                            });
+                            await FlutterPhoneDirectCaller.callNumber(phoneselected!);
+                          }),
+                      SizedBox(height: 10,),
+                      DropdownButtonFormField(
+                          isExpanded: true,
+                          decoration: InputDecoration(
+                            filled: true,
+                            labelText: "feedback",
+                            border: OutlineInputBorder(),
+                            hintStyle: TextStyle(color: Colors.grey[800]),
+                            hintText: "Name",
+                          ),
+                          items: feedback.map((String items) {
+                            return DropdownMenuItem(
+                              value: items,
+                              child: Text(items,overflow: TextOverflow.clip, maxLines: 2,),
+                            );
+                          }).toList(),
+                          onChanged: (val) {
+                            setState(() {
+                              feedbackselected = val!;
+                            });
+                          }),
+                      TextField(
+                        maxLines: 4,
+                        controller: feedbackController,
                         decoration: InputDecoration(
-                          filled: true,
-                          labelText: "feedback",
-                          border: OutlineInputBorder(),
-                          hintStyle: TextStyle(color: Colors.grey[800]),
-                          hintText: "Name",
+                          labelText: 'Additional Feedback',
                         ),
-                        items: feedback.map((String items) {
-                          return DropdownMenuItem(
-                            value: items,
-                            child: Text(items,overflow: TextOverflow.clip, maxLines: 2,),
-                          );
-                        }).toList(),
-                        onChanged: (val) {
-                          setState(() {
-                            feedbackselected = val!;
-                          });
-                        }),
-                    SizedBox(height: 10,),
-                    TextFormField(
-                      decoration: const InputDecoration(
-                        hintText: 'Date',
-                        border: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.blue, width: 1)),
-                        focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.blue, width: 1)),
-                        enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.blue, width: 1)),
                       ),
-                      controller: dateInputController,
-                      readOnly: true,
-                      onTap: () async {
-                        DateTime? pickedDate = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime.now(),
-                            lastDate: DateTime.now().add(Duration(days: 5)));
+                      SizedBox(height: 10,),
+                      TextFormField(
+                        decoration: const InputDecoration(
+                          hintText: 'Date',
+                          border: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.blue, width: 1)),
+                          focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.blue, width: 1)),
+                          enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.blue, width: 1)),
+                        ),
+                        controller: dateInputController,
+                        readOnly: true,
+                        onTap: () async {
+                          DateTime? pickedDate = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime.now(),
+                              lastDate: DateTime.now().add(Duration(days: 5)));
 
-                        if (pickedDate != null) {
-                          dateInputController.text =pickedDate.toString();
-                        }
-                      },
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: Text('Cancel'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              callLogs(_docid);
-                            },
-                            child: Text('Submit'),
-                          ),
-                        ])
-                  ])));
+                          if (pickedDate != null) {
+                            dateInputController.text =pickedDate.toString();
+                          }
+                        },
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text('Cancel'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                callLogs(_docid,feedbackController.text,angaza);
+                              },
+                              child: Text('Submit'),
+                            ),
+                          ])
+                    ]))),
+          );
         });
   }
 
@@ -319,18 +412,145 @@ class CompleteCallsState extends State<CompleteCalls> {
                       itemCount: snapshot.data!.docs.length,
                       itemBuilder:(BuildContext context, int index){
                         DocumentSnapshot data = snapshot.data!.docs[index];
+                        String phoneList =
+                            '${data["Customer Phone Number"]},'+
+                                '${data["Phone Number 1"].toString()},'+
+                                '${data["Phone Number 2"].toString()},'+
+                                '${data["Phone Number 3"].toString()},'+
+                                '${data["Phone Number 4"].toString()},'
+                        ;
 
                         /*final sortedItems = _foundUsers
                           ..sort((item1, item2) => isDescending
                               ? item2['name'].compareTo(item1['name'])
                               : item1['name'].compareTo(item2['name']));
                         final name = sortedItems[index]['name'];*/
-                        return InkWell(
+                        return FutureBuilder(
+                          future: getAccountData(data['Angaza ID']),
+                          builder: (BuildContext context, AsyncSnapshot<dynamic> accountdata) {
+                            if (accountdata.hasData) {
+                              var querydata =  accountdata.data.toString();
+                              var accountdetail = jsonDecode(querydata);
+                              bool isdisable = false;
+                              var date = DateTime.parse(accountdetail["payment_due_date"]);
+                              if(accountdetail["status"] =='DISABLED'){
+                                isdisable = true;
+                              }
+
+                              return InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            CProfile(
+                                                id: data.id,
+                                                client:accountdetail["client_qids"][0],
+                                              angaza: data['Angaza ID'],
+                                            ),
+                                      ));
+                                },
+                                key: ValueKey(snapshot.data!.docs[index]),
+                                child: Row(
+                                  children: [
+                                    FutureBuilder(
+                                        future: getPhoto(accountdetail["client_qids"][0]),
+                                        builder: (BuildContext context,
+                                            AsyncSnapshot<dynamic> photourl) {
+                                          if (photourl.hasData) {
+                                            String photo = photourl.data!;
+                                            return SizedBox(
+                                              height: 50,
+                                              width: 50,
+                                              child: Image.network(photo),
+                                            );
+                                          } else if (snapshot.hasError) {
+                                            return CircleAvatar(
+                                              backgroundColor: Colors.blueGrey.shade800,
+                                              radius: 20,
+
+                                            );
+                                          }else {
+                                            return CircularProgressIndicator();
+                                          }
+                                        }),
+                                    SizedBox(
+                                      width: 2,
+                                    ),
+                                    Flexible(
+                                      child: Container(
+                                        height: 80,
+                                        child: Card(
+                                          color: isdisable?Colors.red.withOpacity(0.6):Colors.green.withOpacity(0.6),
+                                          elevation: 5,
+                                          child: Padding(
+                                            padding:
+                                            EdgeInsets.fromLTRB(5.0, 5, 0, 0),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Column(
+                                                  crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text("Name: ${data['Customer Name']}"),
+                                                    Text("Account: ${data['Account Number']
+                                                        .toString()}"),
+                                                    Text('Task: ${data['Task Type']}'),
+                                                    // Text("${account}"),
+
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          _callNumber(
+                                                              phoneList,
+                                                              data.id,
+                                                              data["Angaza ID"]
+                                                          );
+                                                        },
+                                                        icon: Icon(Icons.phone)),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          Navigator.push(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                builder: (context) =>
+                                                                    CustomerVisit(id: data.id, client:accountdetail["client_qids"][0]),
+                                                              ));
+                                                        },
+                                                        icon: Icon(Icons
+                                                            .location_on_outlined))
+                                                  ],
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }else if(accountdata.hasError){
+                              return Text("Error loading data");
+                            }else{
+                              return CircularProgressIndicator();
+                            }
+
+                          },
+
+                        );
+
+                          /*InkWell(
                           onTap: () {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => CProfile(id: data.id),
+                                  builder: (context) => CProfile(id: data.id,client: "dsada",),
                                 ));
                           },
                           key: ValueKey(snapshot.data!.docs[index]),
@@ -382,7 +602,7 @@ class CompleteCallsState extends State<CompleteCalls> {
                                                         context,
                                                         MaterialPageRoute(
                                                           builder: (context) =>
-                                                              CustomerVisit(id: data.id),
+                                                              CustomerVisit(id: data.id,client: "dadsds",),
                                                         ));
                                                   },
                                                   icon: const Icon(
@@ -397,7 +617,7 @@ class CompleteCallsState extends State<CompleteCalls> {
                               ),
                             ],
                           ),
-                        );
+                        );*/
                       }, separatorBuilder: (BuildContext context, int index) => const Divider(),)
                         : const Text(
                       'No results found',

@@ -199,14 +199,19 @@ class CustomerState extends State<Customer> {
               ),
               RowData(
                 value: 0,
-                label: 'Complete rate',
+                label: 'Complete Rate',
                 future: USerCallDetail().CompleteRate('Call'),
               ),
               RowData(
                 value: 32,
                 label: 'Success Calls',
                 future: USerCallDetail().CountSucceful('Call'),
-              )
+              ),
+              RowData(
+                value: 35,
+                label: 'Total Collected',
+                future: USerCallDetail().Amount('Call'),
+              ),
             ],
           ),
           KpiTittle(
@@ -228,14 +233,20 @@ class CustomerState extends State<Customer> {
               ),
               RowData(
                 value: 35,
-                label: 'Complete rate',
+                label: 'Complete Rate',
                 future: USerCallDetail().CompleteRate('Visit'),
               ),
+
               RowData(
                 value: 20,
                 label: 'Success Visit',
                 future: USerCallDetail().CountSucceful('Visit'),
-              )
+              ),
+              RowData(
+                value: 35,
+                label: 'Total Collected',
+                future: USerCallDetail().Amount('Visit'),
+              ),
             ],
           ),
           SizedBox(

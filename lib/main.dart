@@ -11,6 +11,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:flutter/material.dart';
+import 'future_function.dart';
 import 'routing/bottom_nav.dart';
 import 'login.dart';
 
@@ -51,7 +52,7 @@ class _MyAppState extends State<MyApp> {
           /*darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,*/
           debugShowCheckedModeBanner: false,
-          home: isLogin?NavPage():Login(),
+          home:/*BaseData()*/ isLogin?NavPage():Login(),
     );
   }
 }

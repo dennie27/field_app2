@@ -24,9 +24,9 @@ class NavPagePageState extends State<NavPage> {
  }
   int _selectedIndex = 0;
   final List<Widget> _tabs = <Widget>[
-    /*Home(),
-    Task(),*/
-    Customer()
+    Home(),
+    Task(),
+    //Customer()
   ];
   @override
   Widget build(BuildContext context) {
@@ -60,18 +60,18 @@ class NavPagePageState extends State<NavPage> {
               tabBackgroundColor: Colors.black87,
               color: Colors.black,
               tabs: const [
-              /*  GButton(
+               GButton(
                   icon: Icons.home,
                   text: 'Home',
                 ),
                 GButton(
                   icon: Icons.task,
                   text: 'task',
-                ),*/
-                  GButton(
+                ),
+                 /* GButton(
                   icon: Icons.phone,
                   text: 'Customer',
-                ),
+                ),*/
               ],
               onTabChange: (index){
                 setState(() {

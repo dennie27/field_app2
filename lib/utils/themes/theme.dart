@@ -52,7 +52,7 @@ class AppTheme{
       colorScheme: ColorScheme.fromSwatch(
         primarySwatch: AppColor.mycolor,).copyWith(secondary: Colors.red, brightness: Brightness.light),
 
-    textTheme:GoogleFonts.robotoSerifTextTheme(),
+    textTheme:GoogleFonts.robotoTextTheme(),
     appBarTheme: AppBarTheme(),
     floatingActionButtonTheme: FloatingActionButtonThemeData(),
       indicatorColor: AppColor.mycolor,
@@ -72,6 +72,7 @@ class AppTheme{
       ).apply(
         bodyColor: Colors.yellow,
         displayColor:  Colors.yellow,
+
       ),
       appBarTheme: AppBarTheme(),
       indicatorColor: AppColor.mycolor,
